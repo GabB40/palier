@@ -82,6 +82,11 @@ grep -l 'NON DETECTE\|SURVIT \|SANS EFFET\|NE MORD PAS\|SYNTAXE CASSEE' build/fa
 
 Le second `grep` doit rester muet : `falsif36` sort à 0 même sur une mutation non détectée.
 
+Le workflow `.github/workflows/bancs.yml` joue ces mêmes commandes à chaque push sur `main` et à la
+demande. Il sort en échec si un banc sort non nul ou si le `grep` trouve un motif, sans
+conditionner le déploiement (ADR-0002). Il ne dispense pas de relancer les bancs dans le lot qui
+change le code visé.
+
 Mutations comptées sur les journaux du 26 septembre 2026, toutes tombées :
 
 | Banc | Suite | Mutations |

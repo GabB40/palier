@@ -13,6 +13,31 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 
 ---
 
+## CI/CD, 27 septembre 2026, sans changement de version
+
+**Une version se déploie par un tag `v*`.** GitHub Actions construit, passe les cinquante suites,
+vérifie l'identité du build, la version et l'appartenance à `main`, puis lance `deploy.sh` avec un
+rôle OIDC aux droits minimaux. Décision, gardes et écartés dans `docs/adr/0002-deploiement-par-tag.md`.
+
+### Retiré
+
+- L'intention de passer `dist/` dans `.gitignore` (README, ADR-0001) : `dist/index.html` reste
+  commité, la CI le reproduit avant tout dépôt.
+
+### Ajouté
+
+- `.github/workflows/deploiement.yml`, sur tag `v*` : build, gardes d'identité, de version et
+  d'atteignabilité depuis `main`, dépôt par `infra/deploy.sh` inchangé.
+- `.github/workflows/bancs.yml`, sur push vers `main` et à la demande : quinze bancs, journaux lus,
+  échec visible sans conditionner le déploiement.
+- `infra/palier-ci.yaml`, stack `palier-ci` en `us-east-1` : rôle `palier-ci-deploiement`, confiance
+  sur les tags `v*` du dépôt, fournisseur OIDC existant hors stack.
+- `docs/howto/deploiement.md` : déploiement par tag, dépôt manuel en secours, mise en place de
+  `palier-ci`. `docs/howto/git.md`, `docs/backend.md`, `README.md`, `tests/README.md`, carnet
+  sections 3 et 6 : chemins et procédure mis à jour.
+
+---
+
 ## v2.25, 26 septembre 2026
 
 Premier lot sous le dépôt Git.

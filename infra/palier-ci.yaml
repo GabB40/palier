@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  PALIER, deploiement continu : role assume par GitHub Actions en OIDC sur un
+  tag v* du depot GabB40/palier, droits cales sur infra/deploy.sh. A deployer
+  en us-east-1, a cote de palier-edge. Le fournisseur OIDC
+  token.actions.githubusercontent.com existe deja dans le compte, hors stack :
+  il est unique par compte et ne se supprime pas avec cette stack.
+
+Parameters:
+  DistributionId:
+    Type: String
+    AllowedPattern: '^E[A-Z0-9]+$'
+    Description: Sortie DistributionId de palier-edge.
+
+Resources:
+
+  RoleDeploiement:
+    Type: AWS::IAM::Role
+    Properties:
+      # nom fixe : son ARN est ecrit en clair dans .github/workflows/deploiement.yml
+      RoleName: palier-ci-deploiement
+      Description: PALIER, depot de index.html par GitHub Actions sur tag v*
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: GitHubActionsSurTagV
+            Effect: Allow
+            Principal:
+              Federated: !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              # pas d environment: dans le job, sinon le sub devient
+              # repo:...:environment:<nom> et cette condition ne repond plus
+              StringLike:
+                token.actions.githubusercontent.com:sub: repo:GabB40/palier:ref:refs/tags/v*
+      Policies:
+        - PolicyName: deploiement-app
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # deploy.sh lit bucket, distribution et URL dans les sorties
+              - Sid: SortiesPalierEdge
+                Effect: Allow
+                Action: cloudformation:DescribeStacks
+                Resource: !Sub arn:aws:cloudformation:us-east-1:${AWS::AccountId}:stack/palier-edge/*
+              # index.html seul ; bucket en AES256, aucun droit KMS
+              - Sid: DepotIndex
+                Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub arn:aws:s3:::palier-site-${AWS::AccountId}/index.html
+              # GetInvalidation : aws cloudfront wait invalidation-completed
+              - Sid: Invalidation
+                Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                  - cloudfront:GetInvalidation
+                Resource: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DistributionId}
+
+Outputs:
+  RoleArn:
+    Value: !GetAtt RoleDeploiement.Arn

@@ -77,9 +77,10 @@ instrument de mesure sert à vérifier une hypothèse, jamais à en fabriquer un
   d'entrée, ne diffère que par la liste annoncée dans le relevé (ajoutés, modifiés, supprimés).
   `dist/index.html` n'est jamais édité, il est celui que `build.sh` vient d'écrire. Infra
   touchée : `cfn-lint` sur chaque template, `bash -n` sur chaque script ; le code de la Lambda,
-  lui, est éprouvé par `testapi`
+  lui, est éprouvé par `testapi`. Workflow touché : `actionlint`, avec `shellcheck` (ADR-0002)
 
-- Après livraison : Gabriel extrait l'archive à la racine du dépôt, commite en une phrase et
-  pousse ; puis, dans CloudShell `us-east-1`, `git pull --ff-only` et
-  `./infra/deploy.sh dist/index.html` (`docs/howto/deploiement.md`)
+- Après livraison : Gabriel extrait l'archive à la racine du dépôt et commite en une phrase. Si
+  la version change, il tague `vX.Y` et pousse `git push --atomic origin main vX.Y` : GitHub
+  Actions construit, vérifie et déploie (ADR-0002, `docs/howto/deploiement.md`). Sinon,
+  `git push` seul
 - Pas de tirets cadratins dans le contenu généré

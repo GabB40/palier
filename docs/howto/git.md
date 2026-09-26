@@ -53,4 +53,6 @@ git archive --format=zip -o palier.zip HEAD
 3. Extraire l'archive livrée à la racine en écrasant. Une extraction ne supprime rien : jouer les
    `git rm` annoncés dans le relevé.
 4. `git status` : la liste doit être celle du relevé, ni plus ni moins.
-5. Commit en une phrase, push, puis déploiement (`docs/howto/deploiement.md`).
+5. Commit en une phrase. Si la version change : `git tag vX.Y` puis
+   `git push --atomic origin main vX.Y`, et GitHub Actions déploie ; sinon, `git push` seul
+   (`docs/howto/deploiement.md`).

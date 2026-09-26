@@ -1,7 +1,7 @@
 # ADR-0001 : PALIER vit dans un dépôt Git privé
 
 - **Date** : 2026-09-26
-- **Statut** : accepté
+- **Statut** : accepté ; point 4, chemin de déploiement, et « Suite prévue » modifiés par ADR-0002
 - **Remplace** : carnet, section 6, règles de session et de livraison citées en fin de document
 
 ## Contexte

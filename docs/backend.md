@@ -11,6 +11,7 @@ Chaque commande porte sa région explicitement.
 | Stack | Région | Contenu | État |
 |---|---|---|---|
 | `palier-edge` | `us-east-1` | bucket du site `palier-site-727646498837`, OAC, ACL WAF `palier-waf`, distribution, enregistrements A et AAAA ; OAC `palier-api-…`, origine Lambda et comportement `/api/*` | en service depuis le 25 septembre 2026, `/api/*` depuis le 26 septembre |
+| `palier-ci` | `us-east-1` | rôle `palier-ci-deploiement`, assumé en OIDC par GitHub Actions sur tag `v*`, droits calés sur `deploy.sh` | lot du 27 septembre 2026, ADR-0002 ; mise en service à relever au premier tag |
 | `palier-backend` | `eu-west-3` | bucket d'état `palier-etat-727646498837`, Lambda `palier-etat` et sa Function URL, journal | en service depuis le 26 septembre 2026 ; client v2.24 |
 
 `palier-edge` est en `us-east-1` parce qu'une ACL WAF de portée CloudFront ne se crée que là. Le
@@ -21,7 +22,8 @@ paramètre ; la zone `s1t3.link`, qui porte d'autres sites ; l'enregistrement CN
 `_93d0b4…acm-validations.aws`, qui sert au renouvellement du certificat. En `eu-west-3`, le
 paramètre SSM `/palier/utilisateurs`, table des clés, que seul `cle.sh` écrit : une ressource de
 stack aurait vu sa valeur réécrite à la première mise à jour. Le bucket d'état survit à la
-suppression de la stack (`Retain`) et se supprime à la main.
+suppression de la stack (`Retain`) et se supprime à la main. Global, le fournisseur OIDC
+`token.actions.githubusercontent.com`, unique par compte, antérieur à `palier-ci`.
 
 Budget de garde à 1 $ par mois avec alerte, hors stack, inchangé.
 
@@ -67,7 +69,8 @@ Mesurer la compression en GET : `curl -I` fait une requête HEAD, qui n'a pas re
 
 ## Mise à jour de l'app et de l'infra
 
-Procédures dans `docs/howto/deploiement.md` : `./infra/deploy.sh dist/index.html` pour l'app,
+Procédures dans `docs/howto/deploiement.md` : un tag `v*` pour l'app, `./infra/deploy.sh
+dist/index.html` en secours,
 `aws cloudformation deploy` sur `infra/palier-edge.yaml` ou `infra/palier-backend.yaml` pour
 l'infra, retour arrière compris. Règles à retenir : toujours passer les trois paramètres de
 `palier-edge` explicitement, **ne jamais redéployer avec `AttacherWaf=non`**, et vérifier toute
@@ -208,6 +211,7 @@ tous les appareils. Journal pour une prochaine reconstruction :
 |---|---|
 | `infra/palier-edge.yaml` | stack `palier-edge`, `us-east-1` |
 | `infra/palier-backend.yaml` | stack `palier-backend`, `eu-west-3`, code de la Lambda en ligne |
+| `infra/palier-ci.yaml` | stack `palier-ci`, `us-east-1`, rôle de déploiement |
 | `infra/deploy.sh` | dépôt de l'app, invalidation, vérification de la version servie |
 | `infra/cle.sh` | clés de synchronisation, table SSM en `eu-west-3` |
 | `infra/testedge.sh` | vérification de bout en bout de l'API à travers CloudFront |

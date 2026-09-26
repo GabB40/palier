@@ -1,0 +1,49 @@
+# Quinze bancs de falsification a chaque push sur main, et a la demande.
+# Ne conditionne pas le deploiement ; sort en echec si un banc sort non nul ou
+# si un journal porte un motif de survie : falsif36 sort a 0 meme sur une
+# mutation non detectee, les journaux se lisent (tests/README.md, ADR-0002).
+name: bancs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bancs
+  cancel-in-progress: true
+
+jobs:
+  bancs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Build et cinquante suites
+        run: ./build.sh
+
+      - name: Bancs et lecture des journaux
+        run: |
+          e=0
+          for b in build/falsif*.sh; do
+            if bash "$b" > "${b%.sh}.log" 2>&1; then r=0; else r=$?; fi
+            echo "$b $r"
+            if [ "$r" -ne 0 ]; then e=1; echo "== ${b%.sh}.log"; tail -20 "${b%.sh}.log"; fi
+          done
+          M=$(grep -l 'NON DETECTE\|SURVIT \|SANS EFFET\|NE MORD PAS\|SYNTAXE CASSEE' build/falsif*.log || true)
+          for f in $M; do
+            e=1; echo "== $f"
+            grep 'NON DETECTE\|SURVIT \|SANS EFFET\|NE MORD PAS\|SYNTAXE CASSEE' "$f"
+          done
+          if [ "$e" -ne 0 ]; then echo "ECHEC : au moins un banc ne mord plus"; exit 1; fi
+          echo "OK : bancs sortis a 0, aucun motif de survie dans les journaux"

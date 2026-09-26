@@ -1,0 +1,75 @@
+# Un tag v* pousse sur le depot : build et cinquante suites, trois gardes, puis
+# depot de dist/index.html par infra/deploy.sh avec le role palier-ci-deploiement
+# (stack palier-ci, us-east-1). Decision et gardes : docs/adr/0002.
+# Pousser le tag avec main, jamais avant : git push --atomic origin main vX.Y
+name: deploiement
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploiement
+  cancel-in-progress: false
+
+jobs:
+  deployer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      # fetch-depth 0 : origin/main present pour la garde d atteignabilite ;
+      # persist-credentials false : aucun jeton GitHub ne reste dans .git
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Build et cinquante suites
+        run: ./build.sh
+
+      # le build reecrit dist/index.html : l arbre doit rester celui du commit,
+      # octet pour octet, sans quoi le fichier commite n est pas celui teste
+      - name: Garde d identite
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            echo "ECHEC : le build ne reproduit pas l arbre commite"
+            exit 1
+          fi
+          echo "OK : dist/index.html reproduit octet pour octet"
+
+      - name: Garde de version
+        run: |
+          V=$(grep -o "const VERSION='[^']*'" dist/index.html | head -1 | cut -d"'" -f2 || true)
+          if [ -z "$V" ]; then echo "ECHEC : VERSION introuvable dans dist/index.html"; exit 1; fi
+          if [ "$GITHUB_REF_NAME" != "v$V" ]; then
+            echo "ECHEC : tag $GITHUB_REF_NAME sur un fichier en v$V"
+            exit 1
+          fi
+          echo "OK : tag $GITHUB_REF_NAME, fichier en v$V"
+
+      - name: Garde d atteignabilite depuis main
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "ECHEC : le commit tague $(git rev-parse --short HEAD) n est pas dans main"
+            exit 1
+          fi
+          echo "OK : commit tague atteignable depuis main"
+
+      # identifiants obtenus seulement si les trois gardes passent
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::727646498837:role/palier-ci-deploiement
+          role-session-name: palier-${{ github.ref_name }}
+          aws-region: us-east-1
+
+      - name: Depot, invalidation, verification de la version servie
+        run: ./infra/deploy.sh dist/index.html

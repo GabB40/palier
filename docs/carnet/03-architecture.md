@@ -43,8 +43,8 @@ ou hors `https`. Contrat de l'API et décisions dans la section 5.
 bucket du site `palier-site-727646498837` privé et versionné, OAC, distribution CloudFront sous
 forfait gratuit avec l'ACL WAF `palier-waf`, HTTP/2 et 3, IPv6, enregistrements A et AAAA. Le
 certificat ACM et la zone `s1t3.link` restent hors de la stack. Mesuré : `Cache-Control: no-cache`
-et compression Brotli, 2,9 Mo reçus pour 4,2. Coût : zéro. Mise à jour de l'app par `deploy.sh`
-depuis CloudShell `us-east-1`, qui vérifie la version servie. Budget de garde à 1 $/mois avec
+et compression Brotli, 2,9 Mo reçus pour 4,2. Coût : zéro. Mise à jour de l'app par un tag `v*` :
+GitHub Actions construit, vérifie et lance `deploy.sh`, qui vérifie la version servie (ADR-0002). Budget de garde à 1 $/mois avec
 alerte. Tout le détail, contraintes du forfait comprises, vit dans `docs/backend.md`.
 
 Jusqu'au 25 septembre, l'hébergement était fait à la main, et ce paragraphe le décrivait mal sur
