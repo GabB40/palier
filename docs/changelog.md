@@ -2,14 +2,43 @@
 
 Historique des changements entre deux versions. Ce fichier trace **ce qui a changé et quand**.
 Il ne contient ni décision de conception ni justification de fond : celles-ci vivent dans
-`PALIER-carnet-de-bord.md`, qui reste la source de vérité. Le code source complet vit dans
-`PALIER-code.md`, les scripts et les suites de tests dans `PALIER-outillage.md`.
+`docs/carnet/`, qui reste la source de vérité, et dans `docs/adr/`. Le code, les suites, les bancs
+et l'infra vivent dans l'arbre du dépôt, décrit par `README.md`.
 
 Convention : version la plus récente en tête. Chaque entrée est regroupée en **Retiré**,
 **Corrigé**, **Ajouté**, dans cet ordre, avec une raison courte quand elle n'est pas évidente.
 Une entrée est créée à chaque incrément de version, au moment de la livraison du HTML.
 
 Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque et sont approximatives.
+
+---
+
+## Dépôt Git, 26 septembre 2026, sans changement de version
+
+**PALIER passe d'un projet de cinq .md à un dépôt GitHub privé.** `dist/index.html` est identique
+octet pour octet à la v2.24 en ligne. Décisions et règles remplacées dans
+`docs/adr/0001-depot-git.md`.
+
+### Retiré
+
+- `PALIER-code.md`, `PALIER-outillage.md` et le contrôle de reconstruction depuis les .md : le
+  code vit dans `src/`, les suites dans `tests/`, les bancs dans `tests/falsif/`, les outils dans
+  `tools/`, l'infra dans `infra/`. Les cinq .md et `index.html` v2.24 restent dans le premier
+  commit du dépôt.
+
+### Ajouté
+
+- `build.sh` à la racine : copie à plat dans `build/`, cinquante suites, puis `dist/index.html`,
+  écrit seulement si toutes passent. Suites et bancs inchangés d'un octet.
+- `docs/carnet/`, le carnet découpé par section sans réécriture, hors chemins et règles de
+  livraison ; `docs/adr/` avec modèle et ADR-0001 ; `docs/howto/` pour Git, CloudShell,
+  déploiement et clés ; `docs/backend.md` sans les listings, qui sont dans `infra/`.
+- `tests/README.md` et `tools/README.md` : objet et usage de chaque suite, banc et outil, nombres
+  de mutations relevés sur les journaux.
+- `.gitattributes` (`eol=lf`) et bits d'exécution des scripts portés par l'index Git.
+
+Cinquante suites vertes depuis la nouvelle structure ; les quinze bancs relancés depuis `build/`,
+aucune survie, aucun motif qui ne morde pas.
 
 ---
 

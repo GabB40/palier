@@ -1,0 +1,293 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  PALIER, synchronisation : bucket d etat, Lambda et sa Function URL, derriere
+  la distribution de palier-edge. A deployer en eu-west-3 : les donnees des
+  utilisateurs restent en Europe. La table des cles vit hors de la stack, dans
+  SSM, ecrite par cle.sh.
+
+Parameters:
+  DistributionId:
+    Type: String
+    AllowedPattern: '^E[A-Z0-9]+$'
+    Description: Sortie DistributionId de palier-edge, seule autorisee a appeler l URL.
+  NomTable:
+    Type: String
+    Default: /palier/utilisateurs
+    AllowedPattern: '^/[A-Za-z0-9/_.-]+$'
+    Description: >-
+      Parametre SSM empreinte -> identifiant. Hors stack : une mise a jour de la
+      ressource reecrirait sa valeur et effacerait les cles.
+
+Resources:
+
+  # Retain sur les deux politiques : UpdateReplacePolicy protege aussi d un
+  # remplacement de la ressource, que DeletionPolicy seule ne couvre pas
+  BucketEtat:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub palier-etat-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      # 90 jours ET plus de 30 versions plus recentes : tout reste au moins
+      # 90 jours, le 30 est un plancher. La suppression demandee par
+      # l utilisateur purge toutes les versions, voir la Lambda.
+      LifecycleConfiguration:
+        Rules:
+          - Id: anciennes-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 90
+              NewerNoncurrentVersions: 30
+
+  PolitiqueBucketEtat:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BucketEtat
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: TlsObligatoire
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt BucketEtat.Arn
+              - !Sub ${BucketEtat.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: 'false'
+
+  # sans ressource declaree, le groupe est cree au premier appel et garde
+  # ses journaux indefiniment
+  JournalApi:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/palier-etat
+      RetentionInDays: 30
+
+  RoleApi:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: palier-etat
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub ${JournalApi.Arn}:*
+              - Effect: Allow
+                Action: [s3:GetObject, s3:PutObject, s3:DeleteObjectVersion]
+                Resource: !Sub ${BucketEtat.Arn}/state/*
+              # ListBucket : sans lui, un objet absent repond 403 et non 404,
+              # et la premiere liaison ne distingue plus rien en ligne d un refus
+              - Effect: Allow
+                Action: [s3:ListBucket, s3:ListBucketVersions]
+                Resource: !GetAtt BucketEtat.Arn
+              - Effect: Allow
+                Action: ssm:GetParameter
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${NomTable}
+
+  FonctionApi:
+    Type: AWS::Lambda::Function
+    DependsOn: JournalApi
+    Properties:
+      FunctionName: palier-etat
+      Runtime: nodejs24.x
+      Architectures: [arm64]
+      Handler: index.handler
+      MemorySize: 256
+      Timeout: 10
+      ReservedConcurrentExecutions: 2
+      Role: !GetAtt RoleApi.Arn
+      Environment:
+        Variables:
+          BUCKET: !Ref BucketEtat
+          TABLE: !Ref NomTable
+      Code:
+        # CommonJS : le code inline n admet pas les modules ES
+        ZipFile: |
+          'use strict';
+          // PALIER, API d etat : GET, PUT, DELETE sur /api/state.
+          // L identifiant vient de la table SSM, jamais de la requete. La cle
+          // arrive sous sa forme canonique, le client seul normalise.
+          const {S3Client,GetObjectCommand,PutObjectCommand,ListObjectVersionsCommand,DeleteObjectsCommand}=require('@aws-sdk/client-s3');
+          const {SSMClient,GetParameterCommand}=require('@aws-sdk/client-ssm');
+          const zlib=require('zlib');
+          const crypto=require('crypto');
+
+          const BUCKET=process.env.BUCKET, TABLE=process.env.TABLE;
+          const MAX_CORPS=2*1024*1024;   // corps compresse
+          const MAX_JSON=16*1024*1024;   // decompresse : garde contre une bombe gzip
+          const TTL=300000;              // borne le delai d une revocation
+          const RELECTURE=15000;         // une cle neuve sert sans attendre le TTL
+          const CLE=/^[0-9A-HJKMNP-TV-Z]{20}$/;
+          const ID=/^[a-z0-9-]{1,32}$/;
+          const VERS=/^[0-9]+(\.[0-9]+)*$/;
+          const s3=new S3Client({}), ssm=new SSMClient({});
+          let table=null, luLe=0;
+
+          async function lireTable(){
+            let v='{}';
+            try{ v=(await ssm.send(new GetParameterCommand({Name:TABLE}))).Parameter.Value; }
+            catch(e){ if(e.name!=='ParameterNotFound') throw e; }
+            const t=JSON.parse(v);
+            table=(t&&typeof t==='object'&&!Array.isArray(t))?t:{};
+            luLe=Date.now();
+          }
+
+          async function identifiant(cle){
+            if(typeof cle!=='string'||!CLE.test(cle)) return null;
+            const h=crypto.createHash('sha256').update(cle).digest('hex');
+            const age=Date.now()-luLe;
+            if(!table||age>=TTL) await lireTable();
+            else if(!Object.hasOwn(table,h)&&age>=RELECTURE) await lireTable();
+            const id=Object.hasOwn(table,h)?table[h]:null;
+            return (typeof id==='string'&&ID.test(id))?id:null;
+          }
+
+          const statut=e=>e&&e.$metadata&&e.$metadata.httpStatusCode;
+          function rep(code,corps,ent){
+            return {statusCode:code,
+              headers:Object.assign({'cache-control':'no-store','content-type':'application/json'},ent||{}),
+              body:corps===undefined?'':JSON.stringify(corps)};
+          }
+          const err=(code,motif)=>rep(code,{erreur:motif});
+
+          async function lire(cle,h){
+            const inm=h['if-none-match'];
+            let r;
+            try{ r=await s3.send(new GetObjectCommand({Bucket:BUCKET,Key:cle,IfNoneMatch:inm||undefined})); }
+            catch(e){
+              if(statut(e)===304) return {statusCode:304,headers:{'cache-control':'no-store',etag:inm},body:''};
+              if(e.name==='NoSuchKey'||statut(e)===404) return err(404,'absent');
+              throw e;
+            }
+            const b=Buffer.from(await r.Body.transformToByteArray());
+            return {statusCode:200,isBase64Encoded:true,body:b.toString('base64'),
+              headers:{'cache-control':'no-store','content-type':'application/json','content-encoding':'gzip',
+                etag:r.ETag,'x-palier-version':(r.Metadata&&r.Metadata.appversion)||''}};
+          }
+
+          async function ecrire(cle,h,ev){
+            const im=h['if-match'], inm=h['if-none-match'];
+            if(!im&&inm!=='*') return err(428,'if-match ou if-none-match requis');
+            if(!ev.isBase64Encoded) return err(400,'corps binaire attendu');
+            const corps=Buffer.from(ev.body||'','base64');
+            if(corps.length>MAX_CORPS) return err(413,'corps trop grand');
+            let etat;
+            try{ etat=JSON.parse(zlib.gunzipSync(corps,{maxOutputLength:MAX_JSON}).toString('utf8')); }
+            catch(e){ return e.code==='ERR_BUFFER_TOO_LARGE'?err(413,'etat trop grand'):err(400,'gzip ou json invalide'); }
+            if(!etat||typeof etat!=='object'||Array.isArray(etat)||typeof etat.appVersion!=='string'||!VERS.test(etat.appVersion))
+              return err(400,'etat invalide');
+            let r;
+            try{
+              r=await s3.send(new PutObjectCommand({Bucket:BUCKET,Key:cle,Body:corps,
+                ContentType:'application/json',ContentEncoding:'gzip',Metadata:{appversion:etat.appVersion},
+                IfMatch:im||undefined,IfNoneMatch:im?undefined:'*'}));
+            }catch(e){
+              // 412 : ETag perime ; 409 : ecriture concurrente ; 404 : objet
+              // supprime entre-temps. Dans les trois cas le client relit.
+              if([404,409,412].includes(statut(e))||e.name==='NoSuchKey') return err(412,'etat en ligne modifie');
+              throw e;
+            }
+            return rep(200,{etag:r.ETag},{etag:r.ETag});
+          }
+
+          // purge toutes les versions et tous les marqueurs : un simple
+          // DeleteObject laisserait l historique 90 jours
+          async function purger(cle){
+            let km, vm, n=0;
+            do{
+              const r=await s3.send(new ListObjectVersionsCommand({Bucket:BUCKET,Prefix:cle,KeyMarker:km,VersionIdMarker:vm}));
+              const obj=[...(r.Versions||[]),...(r.DeleteMarkers||[])]
+                .filter(v=>v.Key===cle).map(v=>({Key:v.Key,VersionId:v.VersionId}));
+              if(obj.length){
+                const d=await s3.send(new DeleteObjectsCommand({Bucket:BUCKET,Delete:{Objects:obj,Quiet:true}}));
+                if(d.Errors&&d.Errors.length) throw new Error('purge incomplete : '+d.Errors[0].Code);
+                n+=obj.length;
+              }
+              km=r.IsTruncated?r.NextKeyMarker:undefined; vm=r.IsTruncated?r.NextVersionIdMarker:undefined;
+            }while(km!==undefined);
+            return n;
+          }
+
+          exports.handler=async ev=>{
+            const m=ev.requestContext&&ev.requestContext.http&&ev.requestContext.http.method;
+            const h=ev.headers||{};
+            let id=null, res;
+            try{
+              if(ev.rawPath!=='/api/state') res=err(404,'route inconnue');
+              else if(!['GET','PUT','DELETE'].includes(m)) res=err(405,'methode');
+              else if(!(id=await identifiant(h['x-palier-key']))) res=err(401,'cle inconnue');
+              else{
+                const cle='state/'+id+'.json';
+                if(m==='GET') res=await lire(cle,h);
+                else if(m==='PUT') res=await ecrire(cle,h,ev);
+                else { await purger(cle); res={statusCode:204,headers:{'cache-control':'no-store'},body:''}; }
+              }
+            }catch(e){
+              console.log(JSON.stringify({m,id,erreur:e.name||String(e)}));
+              return err(503,'indisponible');
+            }
+            // jamais la cle ni le corps dans le journal
+            console.log(JSON.stringify({m,s:res.statusCode,id,o:ev.body?ev.body.length:0}));
+            return res;
+          };
+
+  UrlApi:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt FonctionApi.Arn
+      AuthType: AWS_IAM
+      InvokeMode: BUFFERED
+
+  # depuis octobre 2025, une Function URL neuve exige les deux actions ; la
+  # seconde est restreinte aux appels par l URL
+  PermissionUrl:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt FonctionApi.Arn
+      Action: lambda:InvokeFunctionUrl
+      FunctionUrlAuthType: AWS_IAM
+      Principal: cloudfront.amazonaws.com
+      SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DistributionId}
+
+  PermissionInvocation:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt FonctionApi.Arn
+      Action: lambda:InvokeFunction
+      InvokedViaFunctionUrl: true
+      Principal: cloudfront.amazonaws.com
+      SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${DistributionId}
+
+Outputs:
+  BucketEtat:
+    Value: !Ref BucketEtat
+  Fonction:
+    Value: !Ref FonctionApi
+  # hote seul, sans https:// ni / final : ce qu attend l origine de palier-edge
+  ApiHote:
+    Value: !Select [2, !Split ['/', !GetAtt UrlApi.FunctionUrl]]

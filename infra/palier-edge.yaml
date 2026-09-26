@@ -1,0 +1,297 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  PALIER, hebergement : bucket du site, OAC, ACL WAF, distribution CloudFront,
+  enregistrements DNS. A deployer en us-east-1 (ACL de portee CLOUDFRONT).
+  Le certificat ACM et la zone Route 53 vivent hors de la stack.
+
+Parameters:
+  NomDomaine:
+    Type: String
+    Default: palier.s1t3.link
+  NomZone:
+    Type: String
+    Default: s1t3.link.
+    Description: Zone Route 53 existante, point final compris.
+  CertificatArn:
+    Type: String
+    Default: arn:aws:acm:us-east-1:727646498837:certificate/65d9a470-5ab8-4dbe-b350-1bec77457dc7
+  AttacherAlias:
+    Type: String
+    AllowedValues: [oui, non]
+    Default: non
+    Description: >-
+      non pendant le test sur le domaine cloudfront.net ; oui a la bascule,
+      une fois l alias retire de l ancienne distribution et son enregistrement supprime.
+  AttacherWaf:
+    Type: String
+    AllowedValues: [oui, non]
+    Default: non
+    Description: >-
+      non pendant le test, l ACL se facturant a l usage hors forfait ;
+      oui a la bascule, juste avant l abonnement au forfait gratuit.
+  ApiHote:
+    Type: String
+    Default: ''
+    AllowedPattern: '^$|^[a-z0-9]+\.lambda-url\.[a-z0-9-]+\.on\.aws$'
+    Description: >-
+      Sortie ApiHote de palier-backend, hote seul. Vide : pas de comportement
+      /api/*, la distribution reste celle du site seul.
+
+Conditions:
+  AvecAlias: !Equals [!Ref AttacherAlias, oui]
+  AvecWaf: !Equals [!Ref AttacherWaf, oui]
+  AvecApi: !Not [!Equals [!Ref ApiHote, '']]
+
+Resources:
+
+  BucketSite:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub palier-site-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      # versioning : retour a la version precedente d index.html en cas de
+      # depot rate ; les anciennes versions ne s accumulent pas
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: anciennes-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 30
+              NewerNoncurrentVersions: 10
+
+  PolitiqueBucketSite:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BucketSite
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: LectureParLaDistributionSeule
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub ${BucketSite.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  OacSite:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub palier-site-${AWS::AccountId}
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # Forfait gratuit : ni ByteMatch ni regex, donc aucune regle limitee a
+  # /api/. Le site ne recoit que des GET, sans corps ; seule l API en porte un,
+  # en gzip, binaire, que le WAF ne decompresse pas. Les regles qui inspectent
+  # le corps passent donc en comptage partout : elles ne protegeaient rien sur
+  # le site, et sur l API elles bloqueraient au-dela de 8 Ko ou au hasard d un
+  # motif trouve dans des octets compresses. La protection de l API est la cle
+  # verifiee par la Lambda, la limite de taille et la concurrence plafonnee.
+  OacApi:
+    Type: AWS::CloudFront::OriginAccessControl
+    Condition: AvecApi
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub palier-api-${AWS::AccountId}
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  AclWaf:
+    Type: AWS::WAFv2::WebACL
+    Condition: AvecWaf
+    Properties:
+      Name: palier-waf
+      Scope: CLOUDFRONT
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: palier-waf
+      Rules:
+        - Name: reputation-ip
+          Priority: 0
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesAmazonIpReputationList
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: reputation-ip
+        - Name: regles-communes
+          Priority: 1
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+              RuleActionOverrides:
+                - Name: SizeRestrictions_BODY
+                  ActionToUse: {Count: {}}
+                - Name: CrossSiteScripting_BODY
+                  ActionToUse: {Count: {}}
+                - Name: GenericLFI_BODY
+                  ActionToUse: {Count: {}}
+                - Name: GenericRFI_BODY
+                  ActionToUse: {Count: {}}
+                - Name: EC2MetaDataSSRF_BODY
+                  ActionToUse: {Count: {}}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: regles-communes
+        - Name: entrees-connues
+          Priority: 2
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+              RuleActionOverrides:
+                - Name: Log4JRCE_BODY
+                  ActionToUse: {Count: {}}
+                - Name: JavaDeserializationRCE_BODY
+                  ActionToUse: {Count: {}}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: entrees-connues
+        # sur tout le site, faute de pouvoir la limiter a /api/ : une
+        # ouverture de l app fait une ou deux requetes, 300 en 5 minutes ne
+        # gene aucun usage et ralentit toute tentative sur les cles
+        - Name: debit
+          Priority: 3
+          Action:
+            Block: {}
+          Statement:
+            RateBasedStatement:
+              Limit: 300
+              EvaluationWindowSec: 300
+              AggregateKeyType: IP
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: debit
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: PALIER
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_All
+        Aliases: !If [AvecAlias, [!Ref NomDomaine], !Ref AWS::NoValue]
+        ViewerCertificate: !If
+          - AvecAlias
+          - AcmCertificateArn: !Ref CertificatArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+        WebACLId: !If [AvecWaf, !GetAtt AclWaf.Arn, !Ref AWS::NoValue]
+        Origins:
+          - Id: site
+            DomainName: !GetAtt BucketSite.RegionalDomainName
+            OriginAccessControlId: !GetAtt OacSite.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          - !If
+            - AvecApi
+            - Id: api
+              DomainName: !Ref ApiHote
+              OriginAccessControlId: !GetAtt OacApi.Id
+              CustomOriginConfig:
+                OriginProtocolPolicy: https-only
+                OriginSSLProtocols: [TLSv1.2]
+            - !Ref AWS::NoValue
+        DefaultCacheBehavior:
+          TargetOriginId: site
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          # Managed-CachingOptimized, politique geree : le forfait gratuit
+          # n admet pas de politique personnalisee
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        # https-only et non redirect : une redirection perdrait le corps d un PUT.
+        # Sept methodes : CloudFront n admet pas de sous-ensemble avec PUT, la
+        # Lambda repond 405 au-dela de GET, PUT, DELETE. Compress a false : une
+        # reponse recompressee verrait son ETag affaibli en W/. Politiques
+        # gerees CachingDisabled et AllViewerExceptHostHeader : aucun cache, tous
+        # les en-tetes transmis sauf Host, que la Function URL refuserait.
+        CacheBehaviors: !If
+          - AvecApi
+          - - PathPattern: /api/*
+              TargetOriginId: api
+              ViewerProtocolPolicy: https-only
+              AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+              CachedMethods: [GET, HEAD]
+              Compress: false
+              CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+              OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+          - !Ref AWS::NoValue
+
+  # Z2FDTNDATAQYW2 : zone hebergee fixe de CloudFront pour les alias
+  DnsIpv4:
+    Type: AWS::Route53::RecordSet
+    Condition: AvecAlias
+    Properties:
+      HostedZoneName: !Ref NomZone
+      Name: !Ref NomDomaine
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+  # absent de l hebergement manuel alors que la distribution sert l IPv6
+  DnsIpv6:
+    Type: AWS::Route53::RecordSet
+    Condition: AvecAlias
+    Properties:
+      HostedZoneName: !Ref NomZone
+      Name: !Ref NomDomaine
+      Type: AAAA
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+Outputs:
+  BucketSite:
+    Value: !Ref BucketSite
+  DistributionId:
+    Value: !Ref Distribution
+  DomaineCloudFront:
+    Value: !GetAtt Distribution.DomainName
+  UrlSite:
+    Value: !If [AvecAlias, !Sub 'https://${NomDomaine}', !Sub 'https://${Distribution.DomainName}']
+  AclWafArn:
+    Condition: AvecWaf
+    Value: !GetAtt AclWaf.Arn

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PALIER</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%2314212B%22/%3E%3Crect x=%2210%22 y=%2242%22 width=%2213%22 height=%2212%22 rx=%222%22 fill=%22%237C8B9C%22/%3E%3Crect x=%2225.5%22 y=%2232%22 width=%2213%22 height=%2222%22 rx=%222%22 fill=%22%23C3CEDA%22/%3E%3Crect x=%2241%22 y=%2220%22 width=%2213%22 height=%2234%22 rx=%222%22 fill=%22%23E8590C%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%2314212B%22/%3E%3Crect x=%2210%22 y=%2242%22 width=%2213%22 height=%2212%22 rx=%222%22 fill=%22%237C8B9C%22/%3E%3Crect x=%2225.5%22 y=%2232%22 width=%2213%22 height=%2222%22 rx=%222%22 fill=%22%23C3CEDA%22/%3E%3Crect x=%2241%22 y=%2220%22 width=%2213%22 height=%2234%22 rx=%222%22 fill=%22%23E8590C%22/%3E%3C/svg%3E">
+<meta name="theme-color" content="#14212B">
+<style>
+:root{
+  --bg:#EAEEF2; --ink:#14212B; --muted:#5C6B7A; --card:#FFFFFF;
+  --accent:#2350C7; --accent-soft:#E3EAFB; --ok:#1B9E4B; --ok-soft:#E2F3E8;
+  --flame:#E8590C; --flame-soft:#FDEBDD; --warn:#B4530A; --line:#D7DEE6;
+  --lock:#94A3B2; --soft:#EDF1F4; --band:#C8E6D2; --rail:#A8B9CD;
+  --r:14px; --mono:ui-monospace,'SF Mono','Cascadia Mono',Consolas,monospace;
+}
+[data-theme="dark"]{
+  --bg:#0E141B; --ink:#E9EEF4; --muted:#93A3B4; --card:#18212C;
+  --accent:#5B8AF5; --accent-soft:#1C2A47; --ok:#41C077; --ok-soft:#15301F;
+  --flame:#F5813B; --flame-soft:#38200F; --warn:#F0A35E; --line:#2B3745;
+  --lock:#66788A; --soft:#222E3B; --band:#1F4A2E; --rail:#405669;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+#app{max-width:480px;margin:0 auto;padding:14px 14px 92px}
+/* v2.15 : sur un ecran de bureau la colonne de telephone laissait les deux
+   tiers de la largeur vides. Une colonne un peu plus large au-dessus de 900 px,
+   rien d autre : le mobile ne change pas, et la structure non plus. Les deux
+   colonnes ont ete maquettees et ecartees par Gabriel au profit de ceci. */
+@media (min-width:900px){#app{max-width:600px}}
+h1,h2,h3{font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+h1{font-size:1.5rem}h2{font-size:1.1rem}h3{font-size:.95rem}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,33,43,.07)}
+.row{display:flex;align-items:center;gap:10px}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--muted);font-size:.85rem}
+.small{font-size:.8rem}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.flame,.tag.pause{background:var(--flame-soft);color:var(--flame)}
+.tag.lock{background:var(--soft);color:var(--lock)}
+button{font:inherit;cursor:pointer;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;padding:12px 18px;transition:transform .06s}
+button:active{transform:scale(.97)}
+button.big{width:100%;padding:16px;font-size:1.05rem;text-transform:uppercase;letter-spacing:.04em;background:linear-gradient(135deg,var(--accent),#6247E5);box-shadow:0 4px 14px rgba(35,80,199,.28)}
+button.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);box-shadow:none}
+button.quiet{background:var(--soft);color:var(--ink);font-weight:600;box-shadow:none}
+button.danger{background:transparent;color:var(--warn);border:1.5px solid var(--warn);font-weight:600;box-shadow:none}
+button.ok{background:var(--ok);box-shadow:none}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.bar{height:10px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#6247E5);border-radius:99px;transition:width .4s}
+/* Couverture : echelle fixe commune aux quatre groupes, la bande visee est
+   dessinee derriere le curseur. Le curseur est vert dans la bande, orange en
+   dehors, avec un lisere couleur card sans lequel le vert sur vert perd son
+   contraste la ou il annonce justement que tout va bien. */
+.covgrad{position:relative;height:14px;margin-top:16px;font-size:11px;color:var(--muted);font-family:var(--mono)}
+.covgrad span{position:absolute;transform:translateX(-50%)}
+.covgrad span.end{right:34px;transform:translateX(50%)}
+.cov{display:flex;align-items:center;gap:8px;margin-top:10px}
+.cov .cn{font-size:.8rem;width:96px;flex:none;display:flex;align-items:center;gap:5px}
+.cov .cv{font-size:.8rem;width:26px;flex:none;text-align:right}
+.tenu{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:99px;background:var(--soft);color:var(--muted)}
+.rail{flex:1;position:relative;height:10px;border-radius:99px;background:var(--soft)}
+.rail .zone{position:absolute;top:0;bottom:0;background:var(--band);border-radius:2px}
+.rail .clip{position:absolute;right:0;top:0;bottom:0;width:10px;border-radius:0 99px 99px 0;background:repeating-linear-gradient(115deg,var(--flame) 0 2px,var(--soft) 2px 5px)}
+.rail .cur{position:absolute;top:-4px;width:4px;height:18px;margin-left:-2px;border-radius:2px;background:var(--ok);box-shadow:0 0 0 2px var(--card)}
+.rail .cur.out{background:var(--flame)}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0;flex-wrap:wrap}
+.dots .grp{display:inline-flex;gap:5px;padding:4px 6px;border:1px solid var(--line);border-radius:99px}
+.dots .grp.full{border-color:var(--ok)}
+.dots i{width:7px;height:7px;border-radius:99px;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.dots i.done{background:var(--ok)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.navbtn{flex:1;max-width:110px;background:none;color:var(--muted);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:none}
+.navbtn.on{color:var(--accent);background:var(--accent-soft)}
+.navbtn svg{width:20px;height:20px}
+.figbox{background:var(--soft);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.figbox svg{width:100%;max-width:230px;height:auto}
+.figbox img{width:100%;height:auto;display:block;border-radius:10px;cursor:zoom-in}
+.figbox.illus{background:transparent}
+[data-theme="dark"] .figbox img{filter:brightness(.9) contrast(1.05);box-shadow:0 0 0 1px var(--line)}
+.fig .st{stroke:var(--ink);stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.fig .hd{fill:var(--ink)}
+.fig .prop{stroke:var(--accent);stroke-width:4;stroke-linecap:round;fill:none}
+.fig .propf{fill:var(--accent)}
+.fig .band{stroke:var(--flame);stroke-width:3;stroke-dasharray:5 5;stroke-linecap:round;fill:none}
+.fig .gnd{stroke:var(--line);stroke-width:2.5;stroke-linecap:round}
+.fig .p1{animation:swp 2s steps(1) infinite}
+.fig .p2{animation:swp 2s steps(1) infinite reverse;opacity:0}
+@keyframes swp{0%,49%{opacity:1}50%,100%{opacity:0}}
+.lightbox{position:fixed;inset:0;background:rgba(8,12,17,.9);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.lightbox img{max-width:100%;max-height:88vh;border-radius:12px}
+.stepper{display:flex;align-items:center;gap:14px;justify-content:center}
+.stepper button{width:52px;height:52px;border-radius:99px;font-size:1.5rem;padding:0;background:var(--soft);color:var(--ink);box-shadow:none}
+.stepper .val{font-family:var(--mono);font-size:2.2rem;font-weight:700;min-width:86px;text-align:center}
+.chrono{font-family:var(--mono);font-size:3rem;font-weight:700;text-align:center;margin:8px 0}
+.chrono.rest{font-size:3.6rem;color:var(--accent)}
+/* Pause au raccord de tour (v2.10). Elle doit se distinguer d une transition
+   avant d avoir ete lue : meme ecran, meme place, autre registre de couleur.
+   Le liseré porte la distinction, le chrono la confirme. */
+.chrono.rest.pause{color:var(--flame)}
+.pausecard{border-left:4px solid var(--flame)}
+.pausemsg{margin-top:10px;font-size:.95rem}
+.vig{background:var(--flame-soft);border-left:4px solid var(--flame);border-radius:8px;padding:10px 12px;font-size:.85rem;margin-top:10px}
+.vig b{color:var(--warn)}
+.steps-list{margin:10px 0 0 0;padding-left:20px;font-size:.9rem}
+.steps-list li{margin-bottom:6px}
+.exo-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.exo-en{font-size:.75rem;color:var(--muted);font-style:italic}
+/* Ligne de performance (v1.16). Trois pastilles au maximum : cible, fourchette,
+   et les series deja faites du jour. Le decalage constate venait d une taille de
+   police posee en style en ligne sur la seule pastille de liste, sans
+   line-height : la boite etait plus courte, donc la valeur et son libelle
+   remontaient tous les deux. Il faut les deux corrections, hauteur de boite fixe
+   en rem pour egaliser les boites, et calage par le bas pour les libelles. */
+.perfline{display:flex;gap:14px;margin:10px 0;justify-content:center;flex-wrap:wrap;align-items:flex-end}
+.pv{text-align:center}
+.pv b{font-family:var(--mono);font-size:1.35rem;display:block;line-height:1.7rem}
+.pv span{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.pv.cible b{color:var(--accent)}
+/* une valeur qui est une liste de nombres est plus petite que les deux valeurs
+   prescriptives : la hierarchie cible et fourchette reste intacte */
+.pv.list b{font-size:1rem}
+.pv.today b{color:var(--ok)}
+/* la derniere fois descend en ligne : c est du contexte, pas une entree de
+   decision. En v1.16 la cible l encodait exactement, plus petite serie du
+   dernier passage plus un ; depuis la fenetre de deux passages (v2.14) elle
+   encode la meilleure des deux dernieres, et la ligne porte donc une
+   information propre : elle dit si la derniere fois a ete absorbee.
+   flex plutot qu un espace, pour que l ecart soit un reglage. */
+.lastline{display:flex;justify-content:center;align-items:baseline;gap:10px;font-size:.82rem;color:var(--muted);margin-top:2px}
+.lastline b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;color:var(--ink);font-weight:700}
+/* separateur de series : attenue et micro-marge. C est le contraste qui separe,
+   pas la distance ; les espaces autour du slash coutaient six caracteres sur
+   quatre valeurs sans rien apporter. */
+i.sl{font-style:normal;font-weight:400;color:var(--muted);opacity:.75;padding:0 .12em}
+.badge{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;background:var(--soft);margin-bottom:8px}
+.badge.off{opacity:.45}
+.badge .ico{font-size:1.5rem}
+.badge .pg{margin-left:auto;padding-left:8px;font-size:.82rem;color:var(--muted);flex:none}
+details{margin-top:10px}
+summary{cursor:pointer;font-weight:600;font-size:.85rem;color:var(--accent)}
+/* card repliable : l en-tete ferme porte la valeur courante, pas seulement le titre */
+details.card{margin-top:0}
+details.card>summary{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;color:var(--ink);font-weight:700;font-size:1rem;padding:0}
+details.card>summary::-webkit-details-marker{display:none}
+details.card>summary::after{content:'';order:3;flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .18s}
+details.card[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+details.card>summary .ttl{flex:none}
+/* v2.15 : la valeur d un en-tete ferme ne se coupe plus. Mesure en 390 px :
+   « échauffement complet · card… », « 1 h 7 min c… », « Cible, calibr… ». Une
+   valeur tronquee oblige a ouvrir, ce qui contredit la regle qui justifie ces
+   en-tetes (v1.5 : la ligne fermee porte la valeur). Elle passe a la ligne,
+   alignee a droite, le chevron restant a sa place. */
+details.card>summary .val{order:2;flex:1;min-width:0;font-weight:600;font-size:.82rem;color:var(--muted);font-family:var(--mono);text-align:right;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+details.card>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.badgerow{order:4;width:100%;display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+details.card[open]>summary .badgerow{display:none}
+.badgechip{display:flex;align-items:center;gap:5px;font-size:.75rem;font-weight:600;padding:5px 10px;border-radius:99px;background:var(--soft)}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:8px 14px;margin-bottom:12px}
+.search input{flex:1;min-width:0;font:inherit;font-size:.9rem;border:none;background:none;color:var(--ink);padding:0}
+.search input:focus{outline:none}
+.search .clr{background:none;color:var(--muted);box-shadow:none;padding:0 2px;font-size:1.1rem;line-height:1}
+.histline{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.histline:last-child{border:none}
+.flash{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-weight:600;font-size:.9rem;z-index:110;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center}
+.flash.show{opacity:1}
+.week-dots{display:flex;gap:6px;flex-wrap:wrap}
+.week-dots i{width:14px;height:14px;border-radius:99px;background:var(--line)}
+.week-dots i.on{background:var(--ok)}
+.week-dots i.extra{background:var(--flame)}
+input[type=number],textarea,select{font:inherit;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:8px}
+.center{text-align:center}
+.mt{margin-top:12px}
+.recap-xp{font-family:var(--mono);font-size:2.4rem;font-weight:800;color:var(--accent);text-align:center}
+.kb{border-top:1px solid var(--line);padding-top:8px;font-size:.72rem;margin-top:12px}
+.kb b{font-family:var(--mono);background:var(--soft);padding:1px 5px;border-radius:4px}
+@media (pointer:coarse){.kb{display:none}}
+/* bouton de bascule du mode allege : etat actif visible d un coup d oeil,
+   meme code couleur que les tags de repli deja utilises en seance */
+button.flamebtn{background:var(--flame);color:#fff;border-color:var(--flame)}
+details.card>summary .val.flameval{color:var(--flame)}
+.loadbox.light{justify-content:center}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:10px 6px;font-size:.85rem}
+/* segment de volume : le nombre de series au-dessus, le temps calcule du jour
+   en dessous. Les deux informations sont vraies, chacune dans son registre. */
+.roundseg button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;line-height:1.15}
+.roundseg button b{font-size:.85rem}
+.roundseg button .sub{font-size:.72rem;opacity:.75;font-variant-numeric:tabular-nums}
+.ver{text-align:center;font-size:.7rem;color:var(--muted);margin-top:6px;font-family:var(--mono);font-weight:700}
+/* Intitules de la card de pied des reglages (v1.18) : trois points d entree en
+   couleur d encre sur un corps gris, la card etant lue pour y chercher une
+   chose parmi trois et non parcourue en entier. */
+.lead{display:block;color:var(--ink);font-weight:700;margin-bottom:2px}
+.matlist{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.chip{font-size:.75rem;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--flame-soft);color:var(--warn)}
+.chipline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip.off{background:var(--soft);color:var(--muted)}
+.chip.prof{background:var(--accent-soft);color:var(--accent)}
+/* CARD MATERIEL (v2.0). Trois composants, une seule colonne de controles a
+   droite : c est la position qui dit qu une chose se touche, et non une phrase.
+   L interrupteur porte la presence, la pastille porte la realisation d un
+   niveau, le couple moins-plus porte un nombre. Ils partagent la meme empreinte
+   de 42 px de large pour que la colonne reste reguliere du haut en bas. */
+button.sw{position:relative;width:42px;height:24px;border-radius:12px;background:var(--line);border:none;padding:0;flex:none;transition:background .15s;box-shadow:none}
+button.sw i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--card);transition:left .15s;display:block}
+button.sw.on{background:var(--accent)}
+button.sw.on i{left:21px}
+button.pastille{width:42px;height:26px;border-radius:13px;border:1px solid var(--line);background:none;padding:0;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:none}
+button.pastille i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(128,128,128,.5);display:block}
+button.pastille i.vide{border-style:dashed}
+.nuancier{padding:2px 0 10px}
+button.teinte{width:28px;height:28px;border-radius:50%;border:1px solid rgba(128,128,128,.5);padding:0;margin:0 7px 7px 0;box-shadow:none}
+button.teinte:active{transform:scale(.92)}
+/* section repliable interne a une card : meme chevron, plus discret */
+details.msec{margin-top:0;border-top:1px solid var(--line)}
+details.msec>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 0;color:var(--ink);font-weight:400;font-size:.95rem}
+details.msec>summary::-webkit-details-marker{display:none}
+details.msec>summary::after{content:'';order:3;flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .18s}
+details.msec[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+details.msec>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.msec .mtit{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.msec .mdet{padding:0 0 12px}
+.msec.plat{padding-top:2px}
+.msec.plat .histline:first-child{border-top:none}
+/* Indicateurs temporels de la transition (v2.9). Ils partagent la ligne du tag,
+   qui etait vide a droite : rien ne descend, la vignette et le bouton ne bougent
+   pas. Le registre est celui du tag, une etiquette de contexte de chaque cote du
+   seul chiffre qui prescrit. Chiffres tabulaires par .num, sans quoi la ligne se
+   deplacerait a chaque minute franchie. */
+.tline{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.nextexo{display:flex;align-items:center;gap:10px;text-align:left;margin:10px 0 2px;padding:8px;border-radius:12px;background:var(--soft)}
+.nextexo img{width:74px;height:52px;object-fit:cover;object-position:center;border-radius:8px;background:var(--card);flex:none}
+[data-theme="dark"] .nextexo img{filter:brightness(.9) contrast(1.05)}
+.nextexo .thumbph{width:74px;height:52px;border-radius:8px;background:var(--card);flex:none}
+.nextexo .ex{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:.9rem}
+.nextexo .ex b{white-space:normal;line-height:1.2}
+.nextexo .ex .small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Series deja faites aujourd hui sur l exercice qui vient (v2.6). C est la
+   pastille .pv.today de l ecran de serie, deplacee : meme vert, meme corps,
+   meme libelle en capitales attenuees. Deux ecrans qui disent la meme chose
+   doivent la dire avec le meme vocabulaire. Le calage a droite reprend le
+   motif de .badge .pg, deja en service ; flex:none l empeche de se comprimer,
+   et c est le nom de l exercice qui s ellipse, lui qui porte deja la regle. */
+.nextexo .jour{margin-left:auto;padding-left:10px;flex:none;text-align:right}
+.nextexo .jour b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1rem;font-weight:700;color:var(--ok);display:block;line-height:1.35rem}
+.nextexo .jour span{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.exorow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.exorow:last-of-type{border:none}
+.exorow img{width:74px;height:52px;object-fit:cover;object-position:center;border-radius:8px;background:var(--soft);flex:none}
+[data-theme="dark"] .exorow img{filter:brightness(.9) contrast(1.05)}
+.exorow .thumbph{width:74px;height:52px;border-radius:8px;background:var(--soft);flex:none}
+.exorow .ex{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;font-size:.88rem}
+.exorow .ex b{white-space:normal;line-height:1.2}
+.exorow .st{text-align:right;flex:none;line-height:1.5;max-width:38%}
+.exorow .lvl{color:var(--muted)}
+.libtier{margin-top:6px}
+.libtier>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:8px 0;color:var(--muted);font-size:.82rem}
+.libtier>summary::-webkit-details-marker{display:none}
+.libtier>summary::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .18s}
+.libtier[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+.libtier>summary b{color:var(--ink);font-family:var(--mono);font-size:.8rem}
+.libsub{color:var(--muted);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;margin:10px 0 2px}
+.exorow.lockedrow{opacity:.55}
+.exorow .lockph{display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.exorow .ex .small{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wu-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;font-size:.9rem}
+.wu-item.on{background:var(--accent-soft);font-weight:700}
+.wu-item.done{opacity:.45}
+.wu-item .t{margin-left:auto;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.loadbox{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}
+.loadbox .lv{font-family:var(--mono);font-weight:700;font-size:1.3rem;min-width:76px;text-align:center}
+.loadbox button{width:44px;height:44px;border-radius:99px;padding:0;font-size:1.2rem;background:var(--soft);color:var(--ink);box-shadow:none}
+/* L animation d apparition des cards ne vaut que pour une arrivee sur un ecran.
+   Le rendu recreant tout le DOM a chaque bouton presse, elle se rejouait sur
+   toutes les cards de la page a chaque clic : opacite nulle et remontee de 8 px,
+   350 ms de fondu, ce qui donnait l impression que la page se rafraichissait.
+   Elle est desormais portee par une classe posee sur le conteneur par le seul
+   rendu qui suit un changement de vue (v1.14). */
+@media (prefers-reduced-motion:no-preference){
+  .tag.flame{animation:flick 2.4s ease-in-out infinite}
+  .recap-xp{animation:pop .55s cubic-bezier(.2,1.6,.4,1)}
+  #app.enter .card{animation:rise .35s ease both}
+}
+@media (prefers-reduced-motion:reduce){.fig .p1{animation:none;opacity:1}.fig .p2{animation:none;opacity:0}}
+@keyframes flick{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes rise{0%{transform:translateY(8px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.pop{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);padding:24px}
+.pop .card{max-width:340px;width:100%;text-align:center;animation:popin .42s cubic-bezier(.2,1.3,.4,1) both}
+.pop .ico{font-size:3.4rem;line-height:1;display:block;animation:popico .9s ease-out .12s both}
+.pop .kind{letter-spacing:.14em;text-transform:uppercase;font-size:.66rem;opacity:.7}
+.pop .nom{font-weight:800;font-size:1.15rem;margin-top:8px}
+.pop .q{margin-top:10px;font-size:.72rem;opacity:.55}
+@keyframes popin{from{opacity:0;transform:translateY(18px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes popico{0%{transform:scale(.2) rotate(-14deg);opacity:0}55%{transform:scale(1.22) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+@media (prefers-reduced-motion:reduce){.pop .card,.pop .ico{animation:none}}
+.bdot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:6px;border:1px solid rgba(128,128,128,.5);vertical-align:-1px}
+/* Carrousel du detail de seance (v1.18). Les panneaux font exactement la
+   largeur de la bande : pas de debord, le calage se fait sur la position reelle
+   de chaque panneau. La barre arrondie a gauche d un panneau a venir reste
+   visible quand l en-tete est sorti du champ, ce que l intitule seul ne fait
+   pas. --rail sert aussi de filet a l encart de niveau : les deux disent la
+   meme chose, ceci concerne une seance a venir. */
+.carnav{display:flex;align-items:center;gap:6px;margin-top:12px}
+.cbtn{width:38px;flex:0 0 38px;padding:5px 0;font-size:18px;line-height:1.1}
+#carfirst{margin-right:4px}
+#carfirst.off{opacity:.3;pointer-events:none}
+.cdots{flex:1;display:flex;gap:6px;justify-content:center}
+.cdots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .15s}
+.cdots i.on{background:var(--accent)}
+.carstrip{position:relative;display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;transition:height .18s ease}
+.carstrip::-webkit-scrollbar{display:none}
+.carpane{flex:0 0 100%;scroll-snap-align:start;min-width:0}
+.futbody{position:relative;margin-top:12px;padding-left:14px}
+.futbody::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;border-radius:3px;background:var(--rail)}
+.futhead{font-weight:800;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.futnote{margin-top:6px;background:var(--soft);border-left:4px solid var(--rail);border-radius:8px;padding:10px 12px;font-size:.85rem}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="nav"></nav>
+<div class="flash" id="flash"></div>
+<script>
+'use strict';
+/* IMGDATA — const IMG={...} inséré ici */
