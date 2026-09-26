@@ -23,7 +23,8 @@ paramètre ; la zone `s1t3.link`, qui porte d'autres sites ; l'enregistrement CN
 paramètre SSM `/palier/utilisateurs`, table des clés, que seul `cle.sh` écrit : une ressource de
 stack aurait vu sa valeur réécrite à la première mise à jour. Le bucket d'état survit à la
 suppression de la stack (`Retain`) et se supprime à la main. Global, le fournisseur OIDC
-`token.actions.githubusercontent.com`, unique par compte, antérieur à `palier-ci`.
+`token.actions.githubusercontent.com`, unique par compte : créé à la main le 5 juillet 2026 pour le
+rôle `cv-deploy-github` du dépôt `cv-2026`, partagé depuis avec `palier-ci`.
 
 Budget de garde à 1 $ par mois avec alerte, hors stack, inchangé.
 

@@ -24,6 +24,13 @@ rôle OIDC aux droits minimaux. Décision, gardes et écartés dans `docs/adr/00
 - L'intention de passer `dist/` dans `.gitignore` (README, ADR-0001) : `dist/index.html` reste
   commité, la CI le reproduit avant tout dépôt.
 
+### Corrigé
+
+- Confiance du rôle `palier-ci-deploiement` : le premier tag, `v2.25`, a été refusé à l'étape des
+  identifiants, gardes vertes et rien de déposé. Le dépôt, créé après le 15 juillet 2026, reçoit
+  de GitHub un `sub` au format immuable, `repo:GabB40@49393475/palier@1389785465:…`, relevé dans
+  CloudTrail.
+
 ### Ajouté
 
 - `.github/workflows/deploiement.yml`, sur tag `v*` : build, gardes d'identité, de version et

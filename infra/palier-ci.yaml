@@ -32,10 +32,12 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-              # pas d environment: dans le job, sinon le sub devient
-              # repo:...:environment:<nom> et cette condition ne repond plus
+              # depot cree apres le 15 juillet 2026 : GitHub emet le sub au format
+              # immuable, nom@identifiant du proprietaire et du depot, releve dans
+              # CloudTrail au premier tag. Pas d environment: dans le job, sinon le
+              # sub devient repo:...:environment:<nom> et cette condition ne repond plus
               StringLike:
-                token.actions.githubusercontent.com:sub: repo:GabB40/palier:ref:refs/tags/v*
+                token.actions.githubusercontent.com:sub: repo:GabB40@49393475/palier@1389785465:ref:refs/tags/v*
       Policies:
         - PolicyName: deploiement-app
           PolicyDocument:
