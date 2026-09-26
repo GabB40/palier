@@ -68,10 +68,13 @@ relevé : le lot retire une étape manuelle et un droit trop large, il ne répar
 ## Conséquences
 
 - Mesuré le 27 septembre 2026, sur la machine de Claude, un cœur : build 201 s, quinze bancs
-  159 s, tous à 0, grep muet. Sur runner, premier passage de `bancs`, build compris : 5 min 20 s,
-  vert. Durée du job de déploiement à relever au premier tag réussi.
-- **Premier tag, `v2.25`, refusé à l'étape des identifiants**, après les trois gardes vertes :
-  rien n'a été déposé. La confiance attendait le `sub` à l'ancien format, par noms seuls, écrit
+  159 s, tous à 0, grep muet. Sur runner, `bancs`, build compris : 5 min 20 s puis 3 min 41 s,
+  verts ; job de déploiement du premier tag réussi : 3 min 43 s, dépôt et vérification compris.
+  Soit moins de 10 minutes Actions par lot versionné, à confronter au quota du plan.
+- **Mise en service le 27 septembre 2026** : relance du job de `v2.25` après correction de la
+  confiance, verte, les octets déjà servis redéposés.
+- **Premier passage du tag `v2.25`, refusé à l'étape des identifiants**, après les trois gardes
+  vertes : rien n'a été déposé. La confiance attendait le `sub` à l'ancien format, par noms seuls, écrit
   sur le modèle de `cv-deploy-github`, dont le dépôt est antérieur au 15 juillet 2026. CloudTrail
   a donné le `sub` reçu ; la confiance le reprend. Douze `AccessDenied` pour un job :
   `configure-aws-credentials` réessaie avant d'abandonner. Leçon : lire le `sub` émis plutôt que
@@ -87,8 +90,9 @@ relevé : le lot retire une étape manuelle et un droit trop large, il ne répar
     à 3, l'autre sorti à 0 avec `SURVIT` au journal.
 
   Un tag poussé avant `main` échoue à tort : relancer le job une fois `main` poussé.
-- **Risque WAF, à lire au premier tag.** Le `curl` final de `deploy.sh` passe par l'ACL depuis une
-  IP de runner. S'il est bloqué, le fichier est déposé et le cache invalidé : le job rouge signifie
+- **Risque WAF, non réalisé au premier tag**, mais l'IP du runner change d'un job à l'autre : le
+  risque demeure. Le `curl` final de `deploy.sh` passe par l'ACL depuis une IP de runner. S'il est
+  bloqué, le fichier est déposé et le cache invalidé : le job rouge signifie
   « vérification impossible », pas « dépôt raté ». On vérifie alors depuis le poste.
 - `aws s3 cp` passe en multipart au-delà de 8 Mio. `s3:PutObject` le couvre, mais pas
   `AbortMultipartUpload`, qui ne sert qu'en cas d'échec. À relire au lot des JPEG si la taille

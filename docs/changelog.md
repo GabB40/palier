@@ -18,6 +18,7 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 **Une version se déploie par un tag `v*`.** GitHub Actions construit, passe les cinquante suites,
 vérifie l'identité du build, la version et l'appartenance à `main`, puis lance `deploy.sh` avec un
 rôle OIDC aux droits minimaux. Décision, gardes et écartés dans `docs/adr/0002-deploiement-par-tag.md`.
+Mis en service par le tag `v2.25`, qui a redéposé les octets déjà servis, en 3 min 43 s.
 
 ### Retiré
 

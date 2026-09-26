@@ -11,7 +11,7 @@ Chaque commande porte sa région explicitement.
 | Stack | Région | Contenu | État |
 |---|---|---|---|
 | `palier-edge` | `us-east-1` | bucket du site `palier-site-727646498837`, OAC, ACL WAF `palier-waf`, distribution, enregistrements A et AAAA ; OAC `palier-api-…`, origine Lambda et comportement `/api/*` | en service depuis le 25 septembre 2026, `/api/*` depuis le 26 septembre |
-| `palier-ci` | `us-east-1` | rôle `palier-ci-deploiement`, assumé en OIDC par GitHub Actions sur tag `v*`, droits calés sur `deploy.sh` | lot du 27 septembre 2026, ADR-0002 ; mise en service à relever au premier tag |
+| `palier-ci` | `us-east-1` | rôle `palier-ci-deploiement`, assumé en OIDC par GitHub Actions sur tag `v*`, droits calés sur `deploy.sh` | en service depuis le 27 septembre 2026, premier tag `v2.25`, ADR-0002 |
 | `palier-backend` | `eu-west-3` | bucket d'état `palier-etat-727646498837`, Lambda `palier-etat` et sa Function URL, journal | en service depuis le 26 septembre 2026 ; client v2.24 |
 
 `palier-edge` est en `us-east-1` parce qu'une ACL WAF de portée CloudFront ne se crée que là. Le
