@@ -1,5 +1,8 @@
 # Git
 
+Les commandes Git de ce document passent telles quelles sous PowerShell, Windows PowerShell 5.1
+compris : aucune ne redirige, `git archive` écrit lui-même son fichier par `-o`.
+
 ## Création du dépôt, une fois
 
 1. GitHub, New repository : nom `palier`, **Private**, sans README, sans `.gitignore`, sans
@@ -8,7 +11,7 @@
    (`PALIER-carnet-de-bord.md`, `PALIER-changelog.md`, `PALIER-code.md`, `PALIER-outillage.md`,
    `PALIER-backend.md`) et l'`index.html` v2.24, tels quels. Puis :
 
-```bash
+```powershell
 git init -b main
 git config core.autocrlf false
 git add .
@@ -17,13 +20,13 @@ git commit -m "<premier message livré>"
 
 3. Second commit, la migration. Retirer les six fichiers :
 
-```bash
+```powershell
 git rm -q PALIER-*.md index.html
 ```
 
    Extraire l'archive livrée à la racine, puis :
 
-```bash
+```powershell
 git add .
 git add --chmod=+x -- '*.sh'
 git ls-files -s build.sh infra/deploy.sh      # 100755 attendu
@@ -42,7 +45,7 @@ sans lui, `./infra/deploy.sh` est refusé dans CloudShell.
 
 1. Archive d'entrée, depuis la racine, état commité seulement :
 
-```bash
+```powershell
 git archive --format=zip -o palier.zip HEAD
 ```
 

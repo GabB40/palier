@@ -48,6 +48,9 @@ button.big{width:100%;padding:16px;font-size:1.05rem;text-transform:uppercase;le
 button.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);box-shadow:none}
 button.quiet{background:var(--soft);color:var(--ink);font-weight:600;box-shadow:none}
 button.danger{background:transparent;color:var(--warn);border:1.5px solid var(--warn);font-weight:600;box-shadow:none}
+/* v2.25 : sortie de route sous un bouton principal (corriger, annuler), sans fond ni contour.
+   Distincte de .search .clr, qui reste le seul role de clr : le ✕ de la recherche. */
+button.discret{background:none;color:var(--muted);font-weight:600;font-size:.88rem;box-shadow:none}
 button.ok{background:var(--ok);box-shadow:none}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 button:disabled{opacity:.45;cursor:default}

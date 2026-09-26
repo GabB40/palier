@@ -1,4 +1,4 @@
-## 5. État courant, v2.24
+## 5. État courant, v2.25
 
 55 exercices, tous illustrés et tous porteurs d'une consigne respiratoire, plus 5 étapes
 d'échauffement illustrées. Banque à 58 images, sans image morte : chaque entrée sert une fiche ou
@@ -427,11 +427,6 @@ de cadence restent à éprouver à l'usage, Gabriel n'ayant pu tester la maquett
 maquette : premier retour à l'usage attendu sur le pont lesté. La faille des douze tenues avec une
 pause au milieu, nommée en v2.17 pour le bird-dog, vaut désormais aussi pour le pont, non
 journalisée de la même façon.
-
-**Reste ouvert après la v2.24.** Le bouton « Une valeur est fausse ? Corriger » du récapitulatif
-s'affiche en bouton plein, alors que le code le veut discret sous le bouton principal : la classe
-`clr` n'est stylée que sous `.search`, et hors de la recherche le bouton prend le style par défaut.
-Vu sur la maquette du lien de cohérence cardiaque, proposé, non traité.
 
 **Synchronisation entre appareils, conception validée le 25 septembre 2026, lot B livré.**
 Étape 1, stack `palier-backend` et `cle.sh`, déployée et vérifiée le 26 septembre, clé `gabriel`

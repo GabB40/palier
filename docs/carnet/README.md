@@ -3,7 +3,7 @@
 Outil personnel d'entraînement de Gabriel. Fichier HTML autonome unique, hébergé sur
 `https://palier.s1t3.link` (stack CloudFormation `palier-edge` en us-east-1, forfait CloudFront
 gratuit ; détail dans `docs/backend.md`).
-Version courante : **v2.24**. Ce document est la source de vérité pour toute évolution.
+Version courante : **v2.25**. Ce document est la source de vérité pour toute évolution.
 
 Documents du dépôt, sous `docs/` : ce carnet, découpé par section dans `docs/carnet/`
 (décisions, contraintes, architecture, conventions) ; `docs/adr/`, une décision par fichier depuis

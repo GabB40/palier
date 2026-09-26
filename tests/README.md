@@ -33,7 +33,7 @@ nouvelle ou modifiée met sa ligne à jour ici, dans le même lot.
 | `test17` | v1.14 | repos alterné, fourchettes de durée, survie des cards au re-rendu |
 | `test18` | v1.15 | filet de sécurité en quatre cas, grâce post-montée, verrous plafonnés |
 | `test19` | v1.15 | composition des viviers, replis marqués, fins de séance |
-| `test20` | v1.15 | correction de la dernière séance : instantané, rejeu, fenêtre |
+| `test20` | v1.15 | correction de la dernière séance : instantané, rejeu, fenêtre ; boutons Annuler et Corriger discrets (v2.25) |
 | `test21` | v1.16 | séries du jour, performance, récapitulatif, migrations rejouées à l'import |
 | `test22` | v1.17 | plafond des tenues au sol à 45 s, verrous de la planche sur ballon |
 | `test23` | v1.18 | retrait du mode cible et du saut de séance, carrousel |

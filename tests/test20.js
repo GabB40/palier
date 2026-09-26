@@ -119,6 +119,9 @@ const T=`
  openFix('prog');
  if(!/Corriger la séance/.test(html)) throw new Error('E-UI : ecran de correction absent');
  if(!/Série 1/.test(html)) throw new Error('E-UI : les series doivent etre numerotees');
+ /* v2.25 : clr n est stylee que sous .search ; hors recherche, un bouton qui la porte
+    prend le style plein par defaut */
+ if(!/<button class="discret mt"[^>]*onclick="fixClose\\(\\)">Annuler<\\/button>/.test(html)) throw new Error('E-UI : Annuler doit etre un bouton discret');
  if(/disabled/.test(html)) throw new Error('E-UI : bouton actif attendu sur des valeurs valides');
  const kk=state.undo.keys[0];
  fixVals[kk]=fixVals[kk].map(()=>0);
@@ -131,7 +134,10 @@ const T=`
  if(cur) throw new Error('E-UI : aucun recapitulatif ne doit rester en place');
  openFix('recap'); fixApply();
  if(view!=='recap') throw new Error('E-UI : une correction depuis le recapitulatif y revient');
- console.log('E-UI OK : ecran rendu, series numerotees, validation inerte a zero, retour au point de depart');
+ if(!/<button class="discret mt"[^>]*>Une valeur est fausse \\? Corriger<\\/button>/.test(html)) throw new Error('E-UI : Corriger doit etre un bouton discret sous le bouton principal');
+ if(/class="clr/.test(html)) throw new Error('E-UI : clr hors de la recherche');
+ if(!/(^|\\n)button\\.discret\\{[^}]*background:none/.test(fs.readFileSync('head.html','utf8'))) throw new Error('E-UI : button.discret doit avoir une regle non scopee');
+ console.log('E-UI OK : ecran rendu, series numerotees, validation inerte a zero, retour au point de depart, Annuler et Corriger discrets');
 
  console.log('TESTS CORRECTION DE SEANCE V1.15 OK');
 })().catch(e=>{console.error('ECHEC:',e.message);process.exit(1)});

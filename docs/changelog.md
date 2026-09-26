@@ -13,6 +13,23 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 
 ---
 
+## v2.25, 26 septembre 2026
+
+Premier lot sous le dépôt Git.
+
+### Corrigé
+
+- « Une valeur est fausse ? Corriger » du récapitulatif et « Annuler » de l'écran de correction
+  s'affichaient en boutons pleins : ils portaient `clr`, stylée seulement sous `.search`. Nouvelle
+  classe `button.discret`, sans fond ni contour, texte gris ; `clr` ne sert plus qu'au ✕ de la
+  recherche. `test20` vérifie les deux boutons et la règle non scopée.
+
+### Ajouté
+
+- `docs/howto/git.md` : ligne de tête sur PowerShell, blocs de commandes étiquetés `powershell`.
+
+---
+
 ## Dépôt Git, 26 septembre 2026, sans changement de version
 
 **PALIER passe d'un projet de cinq .md à un dépôt GitHub privé.** `dist/index.html` est identique

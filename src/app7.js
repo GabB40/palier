@@ -396,7 +396,7 @@ function renderFix(){
     }).join('')+
     (invalide?'<div class="muted small mt">Une série à zéro n\'est pas une série : remonte-la avant de valider.</div>':'')+
     '<button class="big ok mt'+(invalide?' quiet':'')+'"'+(invalide?' disabled':'')+' onclick="fixApply()">Valider la correction</button>'+
-    '<button class="clr mt" style="width:100%" onclick="fixClose()">Annuler</button>'+
+    '<button class="discret mt" style="width:100%" onclick="fixClose()">Annuler</button>'+
   '</div>';
   renderNav();
 }
@@ -461,7 +461,7 @@ function renderRecap(){
     '<button class="big mt" onclick="cur=null;go(\'home\')">Retour à l\'accueil</button>'+
     /* la correction est une sortie de route, pas le scenario nominal : elle
        reste discrete sous le bouton principal */
-    (corrigible()?'<button class="clr mt" style="width:100%" onclick="openFix(\'recap\')">Une valeur est fausse ? Corriger</button>':'')+
+    (corrigible()?'<button class="discret mt" style="width:100%" onclick="openFix(\'recap\')">Une valeur est fausse ? Corriger</button>':'')+
   '</div>'+popHtml();
   renderNav();
   if(popActive()){

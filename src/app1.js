@@ -3,7 +3,7 @@
    regeneration de la banque reecrit entierement : la premiere regeneration
    l aurait efface sans bruit. Il doit rester APRES le marqueur de section,
    sinon le decoupage des sources le range dans imgdata.js. */
-const VERSION='2.24';
+const VERSION='2.25';
 function limb(a,b,c){return '<path class="st" d="M'+a[0]+' '+a[1]+' L'+b[0]+' '+b[1]+(c?' L'+c[0]+' '+c[1]:'')+'"/>';}
 function propSvg(p){
   const A=p.at;
