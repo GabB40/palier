@@ -52,7 +52,7 @@ nouvelle ou modifiée met sa ligne à jour ici, dans le même lot.
 | `test36` | v2.9 | heure et temps écoulé sur la ligne de transition |
 | `test37` | v2.10, v2.11 | ordre poussé, jambes, tiré, gainage ; pause au raccord nommée |
 | `test38` | v2.12 | journal enrichi |
-| `test39` | v2.12 | dette v1.15 et texte « Comment ça marche » |
+| `test39` | v2.12 | dette v1.15 et texte « Comment ça marche » ; tête neutre, consignes de cou et critères de fin (v2.26) |
 | `test40` | v2.13 | escalier du pont fessier |
 | `test41` | v2.14 | fenêtre de deux passages sur la cible, texte en quatre blocs |
 | `test42` | v2.15 | lisibilité, migration de la mémoire de fenêtre |
@@ -100,7 +100,7 @@ Mutations comptées sur les journaux du 27 septembre 2026, toutes tombées :
 | `falsif36` | `test36` | 14 |
 | `falsif37` | `test37` | 14 |
 | `falsif38` | `test38` | 12 |
-| `falsif39` | `test39` | 17 |
+| `falsif39` | `test39` | 25 |
 | `falsif41` | `test41` | 22 |
 | `falsif42` | `test42` | 20 |
 | `falsif43` | `test43` | 15 |

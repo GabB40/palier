@@ -273,19 +273,50 @@ const S=`
       signale, elle a ete remplacee par un renvoi a la ligne de la fiche. */
    /* v2.18 : quinze, les deux fiches de l escalier du squat */
    /* v2.19 : seize, le gainage lateral avec abductions */
-   if(avec.length!==16) err('seize fiches attendues avec un critere propre, obtenu '+avec.length+' : '+avec.join(','));
+   /* v2.26 : vingt et une, tete neutre (ADR-0006) : face pulls, developpe au
+      sol, elevations a l elastique, et les deux tractions strictes */
+   if(avec.length!==21) err('vingt et une fiches attendues avec un critere propre, obtenu '+avec.length+' : '+avec.join(','));
    ['pompes-poignees','planche','gainage-lateral','dead-bug','pallof-press','elevations-laterales','tractions-assistees-supination','tractions-assistees-pronation',
     'pont-fessier','pont-fessier-leste','pont-fessier-une-jambe','hip-thrust-une-jambe','hip-thrust-une-jambe-leste',
-    'squat-une-jambe-chaise','squat-une-jambe-chaise-leste','gainage-lateral-jambe-levee']
+    'squat-une-jambe-chaise','squat-une-jambe-chaise-leste','gainage-lateral-jambe-levee',
+    'face-pulls','developpe-sol','elevations-laterales-elastique','tractions-strictes-supination','tractions-strictes-pronation']
      .forEach(id=>{ if(!DB[id]||!DB[id].fin) err('critere de fin de serie absent sur '+id); });
    const l=finLineHtml('pompes-poignees');
    if(l.indexOf('affaissement du bassin')<0) err('le critere des pompes doit nommer l affaissement du bassin');
    if(l.indexOf('goComment')<0) err('la fiche doit mener au texte complet');
-   const g=finLineHtml('face-pulls');
+   const g=finLineHtml('curls-halteres');
    if(g.indexOf('plus le même exercice')<0) err('une fiche sans critere propre doit porter la regle generale');
    if(g.indexOf('Fin de série')>=0) err('une fiche sans critere propre ne doit pas annoncer un critere propre');
  }
- console.log('fiches OK : treize criteres propres, la regle generale et le lien partout');
+ console.log('fiches OK : vingt et un criteres propres, la regle generale et le lien partout');
+
+ // ================= 7. TETE NEUTRE (v2.26, ADR-0006) =================
+ /* La position de la tete vit dans vig, l arret quand elle part vit dans fin.
+    Une consigne d arret ecrite en vig serait une seconde regle d arret, lue a
+    cote de la premiere. */
+ {
+   const cou=['face-pulls','elevations-laterales','elevations-laterales-elastique','pompes-poignees','pompes-inclinees',
+     'developpe-sol','tractions-assistees-supination','tractions-assistees-pronation','tractions-strictes-supination',
+     'tractions-strictes-pronation','rowing-suspension','rowing-kettlebell','planche','planche-genoux','planche-ballon',
+     'gainage-lateral','gainage-lateral-jambe-levee'];
+   cou.forEach(id=>{ if(!/<b>Cou(?:.épaules)? :<.b>/.test(DB[id].vig||'')) err('consigne de cou absente de la vigilance : '+id); });
+   cou.forEach(id=>{ if(/arr[êe]te la série|stoppe la série/i.test(DB[id].vig||'')) err('regle d arret ecrite en vigilance : '+id); });
+   const fin=(id,re,m)=>{ if(!re.test(DB[id].fin||'')) err(id+' : '+m); };
+   fin('face-pulls',/tête qui avance/,'la tete qui avance arrete la serie');
+   fin('developpe-sol',/tête ou le bas du dos qui décollent/,'la tete qui decolle arrete la serie');
+   ['elevations-laterales','elevations-laterales-elastique'].forEach(id=>fin(id,/l'épaule qui monte vers l'oreille/,'l epaule vers l oreille arrete la serie'));
+   ['tractions-assistees-supination','tractions-assistees-pronation','tractions-strictes-supination','tractions-strictes-pronation']
+     .forEach(id=>fin(id,/sans tendre le cou/,'le menton tendu ne compte pas'));
+   /* la reference de hauteur ne doit plus inviter a tendre le menton */
+   ['tractions-assistees-supination','tractions-strictes-supination'].forEach(id=>{
+     if(!/non tendu vers elle/.test(DB[id].desc.join(' '))) err(id+' : la hauteur de reference invite a tendre le menton');
+   });
+   if(!/mains viennent vers le front/.test(DB['face-pulls'].vig)) err('face pulls : les mains vont vers le front');
+   if(!/la tête reste posée au sol/.test(DB['developpe-sol'].vig)) err('developpe : la tete reste au sol');
+   html=''; showFiche('face-pulls');
+   if(html.indexOf('Fin de série')<0||html.indexOf('tête qui avance')<0) err('le critere des face pulls n est pas rendu');
+   console.log('tete neutre OK : '+cou.length+' fiches, position en vigilance, arret en critere de fin');
+ }
 
  console.log('TESTS DETTE V1.15 ET COMMENT CA MARCHE V2.12 OK');
 })().catch(e=>{console.error('ECHEC:',e.message);process.exit(1)});

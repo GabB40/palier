@@ -2036,10 +2036,8 @@ donc comme « loin de l'échec », soit l'inverse de la vérité. Ce qu'on fera 
 champs se décidera sur des données, pas sur une intention.
 
 **Une règle d'arrêt a sa ligne, et un texte unique se révèle progressivement (v2.12).**
-Le critère de fin de série vit dans un champ `fin` propre, ni dans `desc` qui décrit le
-geste, ni dans `vig` qui nomme ce qui est en jeu sur le corps. Sept fiches le portent,
-celles où l'échec technique arrive avant l'échec musculaire ; toutes portent la règle
-générale et un lien vers le texte complet. Le répéter partout le ferait lire nulle part.
+Le critère de fin de série vit dans le champ `fin` : décision migrée avec la tête neutre de la
+v2.26, position en `vig` et arrêt en `fin` (ADR-0006, texte d'origine conservé).
 
 « Comment ça marche » est un seul texte, quatre blocs courts depuis la v2.14, portant chacun son
 développement replié sur place. Il s'affiche sur l'accueil tant qu'il n'a pas été lu et

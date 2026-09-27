@@ -863,7 +863,8 @@ function showFiche(id,from){
 /* Critere de fin de serie sur la fiche (v2.12). Il ne vit pas dans vig, qui
    nomme ce qui est en jeu sur le corps, ni dans desc, qui decrit le geste :
    c est une regle d arret, et elle merite sa ligne. Le champ n existe que la ou
-   l echec technique arrive avant l echec musculaire, sept fiches ; ailleurs la
+   l echec technique arrive avant l echec musculaire, vingt et une fiches
+   depuis la v2.26 (ADR-0006) ; ailleurs la
    regle generale de la section de Reglages suffit, et la repeter partout la
    ferait lire nulle part. Le lien mene au texte complet, une seule source. */
 function finLineHtml(id){

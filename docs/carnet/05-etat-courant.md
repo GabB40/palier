@@ -1,4 +1,4 @@
-## 5. État courant, v2.25
+## 5. État courant, v2.26
 
 55 exercices, tous illustrés et tous porteurs d'une consigne respiratoire, plus 5 étapes
 d'échauffement illustrées. Banque à 58 images, sans image morte : chaque entrée sert une fiche ou
@@ -199,7 +199,9 @@ et son chiffrage des viviers sous matériel réduit, a été consommé par les q
 puis par le lot de clôture. Il est conservé sous forme de décisions tranchées en section 2, à la
 date où elles l'ont été, et non plus comme un chantier ouvert.
 
-**Écarté volontairement** : cinquième série par exercice (l'ancien plafond de 5 tours était
+**Écarté volontairement** : réécriture de l'étirement de nuque et place réservée au haut du corps
+parmi les étirements de fin, tant qu'APLOMB porte les étirements quotidiens (ADR-0006) ;
+cinquième série par exercice (l'ancien plafond de 5 tours était
 atteignable à 20 minutes en échauffement court sans cardio ; le passage au choix explicite du
 volume ferme ce chemin accidentel, Gabriel ayant confirmé ne pas vouloir ce volume, et raccourcir
 l'échauffement pour gagner un tour reste exclu, ce serait troquer une protection contre du volume),
@@ -573,8 +575,9 @@ d'écartement et ce que la conception avait de faux vivent à la section « Tenu
 Reste ouvert : les successeurs de plafond, carrés et résistance, encore des marches écrites. La
 faille des douze tenues avec une pause au milieu est close sans traitement ni journal (ADR-0004).
 
-*Critère de fin de série, livré en v2.12.* Le champ `fin` porte le critère propre sur sept fiches,
-et toutes portent la règle générale. Formulation retenue, issue de Gabriel et affinée : **une série se termine quand la répétition suivante ne serait plus le même
+*Critère de fin de série, livré en v2.12.* Le champ `fin` porte le critère propre sur vingt et une
+fiches depuis la v2.26, dont les arrêts de tête neutre (ADR-0006), et toutes portent la règle
+générale. Formulation retenue, issue de Gabriel et affinée : **une série se termine quand la répétition suivante ne serait plus le même
 exercice.** Deux façons d'y arriver : l'agoniste lâche et on s'arrête 1 à 3 répétitions avant, ou
 **la qualité se dégrade en premier et c'est elle qui commande**. Sur pompes, planche, gainage
 latéral, tractions assistées, dead bug, pallof press et élévations latérales, la référence n'est pas
@@ -620,7 +623,12 @@ fond, quatre auditeurs indépendants sur quatre convergent : **les
 c'est une abduction isolée, et c'est le seul exercice du vivier qui pré-fatigue exactement ce que le
 face pull cible. Les trois exercices du vivier étant marqués épaule 3, le poste poussé charge
 l'épaule dans 100 % des séances ; un remplaçant qui n'y met pas l'épaule en facteur limitant
-ramènerait ce chiffre à 67 %. Candidat proposé indépendamment par les deux audits ancrés :
+ramènerait ce chiffre à 67 %. Observation du 27 septembre 2026, sans rien trancher : Gabriel
+perçoit une faiblesse de la nuque et une tête qui part en avant sur les postes d'épaule, présents
+dans 23 séances sur 23 à 1,96 poste par séance ; il ne sait pas dire s'ils aggravent. Deux montées
+récentes sur les isolations d'épaule, élévations 3 puis 4 kg le 20, face pulls jaune puis rouge le
+25 ; compensation par les trapèzes supposée, non établie. La v2.26 n'a touché que les consignes
+(ADR-0006). Candidat proposé indépendamment par les deux audits ancrés :
 **extension triceps à l'élastique en pushdown sur ancrage de porte**, matériel déjà présent. À
 trancher : l'exercice de remplacement, et ce que deviennent les élévations latérales, poste optionnel
 de fin, cinquième mini-poste, ou sortie du circuit. Effet cumulatif avec la v2.10 : l'ordre et la
@@ -634,6 +642,8 @@ vers un cinquième poste court en fin de circuit, en rotation exclusive, jamais 
 séance, conserverait les deux exercices, rendrait les viviers poussé et tiré purement composés, et
 rendrait la fréquence de chacun réglable. Coût : cinq stations, structure de séance et modèle de
 temps à revoir, et la question du raccord entièrement reposée. À ne pas décider sans observation.
+Observation du 27 septembre 2026 versée ici comme au chantier précédent : faiblesse de nuque perçue
+sur les postes d'épaule, le mini-poste réduirait leur fréquence par séance.
 
 *Journal enrichi, livré en v2.12.* Trois champs et non deux : aux deux recensés, durée par série et
 tours prévus au lancement, s'est ajoutée la **cible du jour**, sans laquelle l'instrument de

@@ -13,6 +13,32 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 
 ---
 
+## v2.26, 27 septembre 2026
+
+**Tête neutre.** La tête ne va jamais chercher la charge, les mains, le sol ni la barre ; sa
+position s'écrit en vigilance, l'arrêt quand elle part s'écrit en critère de fin. Consignes
+seulement : ni tirage, ni viviers, ni progression, ni état. Décision, écartés et migration de la
+règle v2.12 sur `fin` dans `docs/adr/0006-tete-neutre.md`.
+
+### Corrigé
+
+- Tractions : description et critère de fin demandaient le menton à la barre pendant que la
+  vigilance interdisait de le tendre. Le menton arrive à la barre porté par la montée du corps ; la
+  série s'arrête quand il n'y arrive plus sans tendre le cou. Les comptes peuvent perdre une
+  répétition sans régression.
+
+### Ajouté
+
+- Consigne de cou en vigilance sur dix-sept fiches, dont la tête posée au sol sur le développé.
+- Critère de fin créé sur cinq fiches, face pulls, développé au sol, élévations à l'élastique, deux
+  tractions strictes, étendu sur trois, élévations latérales et deux tractions assistées : vingt et
+  une fiches en portent un.
+- `test39`, section 7, et huit mutations dans `falsif39`, par remplacement exact.
+- Carnet : contrainte cou et épaules précisée en section 1, observation du 27 septembre versée aux
+  deux chantiers d'épaule en section 5.
+
+---
+
 ## Banque d'images en JPEG séparés, 27 septembre 2026, sans changement de version
 
 **Les 58 illustrations vivent en fichiers, `imgdata.js` est fabriqué au build.** `dist/index.html`

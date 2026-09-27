@@ -4,7 +4,11 @@
 
 **Contraintes physiques, structurantes pour tout le programme :**
 - Malformation en L5 (bas du dos)
-- Douleurs fréquentes cou et épaules
+- Douleurs fréquentes cou et épaules. Précisé le 27 septembre 2026 : tête en avant, SCOM tendu,
+  tension occiput-trapèzes, faiblesse de la nuque perçue sous effort sur les postes d'épaule. Le
+  travail correctif (fléchisseurs profonds, bas des trapèzes, étirements, cohérence cardiaque,
+  micro-pauses) vit hors de l'outil, dans l'app APLOMB ; PALIER porte la tête neutre dans ses
+  consignes (ADR-0006)
 - Douleurs aux genoux apparues récemment
 
 Conséquences appliquées partout, à ne jamais contredire :
@@ -15,6 +19,8 @@ Conséquences appliquées partout, à ne jamais contredire :
 - Fentes arrière plutôt qu'avant, profondeur de squat contrôlée
 - Charnière de hanche (soulevé roumain, swings) verrouillée derrière une maîtrise préalable
 - Face pulls traités comme l'exercice santé n°1 pour cou et épaules
+- Tête neutre sur tout exercice qui charge l'épaule : la tête ne va jamais chercher la charge, les
+  mains, le sol ni la barre, et la série s'arrête quand elle part (ADR-0006)
 
 **Disponibilité** : 3 à 7 séances par semaine, 10 à 20 minutes, plage 8 h - 20 h, jamais le matin tôt.
 Objectif hebdomadaire par défaut : 4 séances.

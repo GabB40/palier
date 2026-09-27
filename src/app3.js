@@ -212,7 +212,7 @@ DB['rowing-suspension']={
  desc:['Sangles accrochées à la barre de traction, poignées tenues bras tendus, corps gainé en ligne droite des épaules aux talons.',
        'Recule les pieds pour amener le corps à environ 30° du sol, comme sur le dessin : c\'est l\'inclinaison de travail.',
        'Tire les poignées vers les côtes, coudes près du corps, omoplates serrées, souffle en tirant, puis redescends lentement.'],
- vig:'<b>Dos :</b> le corps reste une planche, ne laisse pas le bassin s\'affaisser. <b>Inclinaison :</b> vise environ 30° par rapport au sol ; plus tu es horizontal, plus c\'est dur. <b>Progression :</b> au plafond de répétitions, avance les pieds de quelques centimètres plutôt que d\'en faire plus.',
+ vig:'<b>Dos :</b> le corps reste une planche, ne laisse pas le bassin s\'affaisser. <b>Inclinaison :</b> vise environ 30° par rapport au sol ; plus tu es horizontal, plus c\'est dur. <b>Cou :</b> tête dans l\'alignement du corps, elle ne s\'avance pas vers les poignées. <b>Progression :</b> au plafond de répétitions, avance les pieds de quelques centimètres plutôt que d\'en faire plus.',
  fb:'rowing-elastique'};
 DB['gainage-lateral']={
  nom:'Gainage latéral',en:'Side plank',mus:'Obliques, carré des lombes, stabilité du bassin',
@@ -220,7 +220,7 @@ DB['gainage-lateral']={
        'Décolle le bassin pour former une ligne droite de la tête aux pieds, et tiens.',
        'Le chrono s\'arrête dès que le bassin descend. Fais l\'autre côté.'],
  fin:'la hanche qui descend. Une tenue finit quand la ligne casse, pas quand le chrono paraît court.',
- vig:'<b>Dos :</b> pièce maîtresse pour les lombaires fragiles, aucune flexion de colonne. Si c\'est trop dur, plie les genoux et prends appui dessus : la version genoux compte pleinement. <b>Épaules :</b> pousse le sol avec l\'avant-bras et garde l\'épaule loin de l\'oreille, sans t\'affaisser dedans. La version genoux allège aussi l\'épaule. <b>Respiration :</b> ne bloque jamais, souffle lentement pendant la tenue.'};
+ vig:'<b>Dos :</b> pièce maîtresse pour les lombaires fragiles, aucune flexion de colonne. Si c\'est trop dur, plie les genoux et prends appui dessus : la version genoux compte pleinement. <b>Épaules :</b> pousse le sol avec l\'avant-bras et garde l\'épaule loin de l\'oreille, sans t\'affaisser dedans. La version genoux allège aussi l\'épaule. <b>Respiration :</b> ne bloque jamais, souffle lentement pendant la tenue. <b>Cou :</b> tête dans le prolongement du tronc, elle ne tombe pas vers l\'épaule d\'appui.'};
 DB['pont-fessier']={
  nom:'Pont fessier',en:'Glute bridge',mus:'Fessiers, ischios, bas du dos',
  desc:['Allongé sur le dos, genoux pliés, pieds à plat au sol écartés de la largeur des hanches, bras le long du corps.',
@@ -292,7 +292,7 @@ DB['planche-ballon']={
  desc:['Avant-bras posés sur le dessus du ballon, coudes sous les épaules, mains jointes ou poings côte à côte.',
        'Installe-toi d\'abord à genoux, puis tends les jambes une par une : pointes de pieds au sol, corps aligné des épaules aux talons.',
        'Le ballon bouge en permanence, ton travail est de l\'empêcher de bouger. Le chrono s\'arrête dès que le bassin descend ou que les avant-bras glissent.'],
- vig:'<b>Dos :</b> l\'instabilité remplace le levier, aucune flexion de colonne ajoutée. <b>Ballon :</b> gonflé ferme, c\'est le gonflage qui fixe la difficulté ; un ballon mou rend l\'exercice plus facile, pas plus dur. <b>Respiration :</b> ne bloque jamais, souffle lentement pendant la tenue. <b>Épaules :</b> si l\'appui tire sur l\'épaule, redescends à la planche au sol pour la séance.',
+ vig:'<b>Dos :</b> l\'instabilité remplace le levier, aucune flexion de colonne ajoutée. <b>Ballon :</b> gonflé ferme, c\'est le gonflage qui fixe la difficulté ; un ballon mou rend l\'exercice plus facile, pas plus dur. <b>Respiration :</b> ne bloque jamais, souffle lentement pendant la tenue. <b>Épaules :</b> si l\'appui tire sur l\'épaule, redescends à la planche au sol pour la séance. <b>Cou :</b> regard vers le ballon, nuque longue, la tête ne tombe pas entre les épaules.',
  fb:'planche'};
 DB['gainage-lateral-jambe-levee']={
  nom:'Gainage latéral, abductions',en:'Side plank with hip abduction',mus:'Obliques, carré des lombes, moyen fessier',
@@ -300,7 +300,7 @@ DB['gainage-lateral-jambe-levee']={
        'Au double bip, décolle le bassin et établis la ligne de la tête aux pieds. Au bip aigu, monte la jambe du dessus en 1,5 s jusqu\'à environ 35°, pied dans l\'axe du corps, en soufflant ; au bip grave, redescends-la en 1,5 s jusqu\'à effleurer l\'autre jambe, sans t\'y reposer.',
        'Une répétition compte jambe revenue. Arrête dès que la ligne casse, puis fais l\'autre côté.'],
  fin:'le bassin qui descend ou qui part en arrière. Dès que la ligne casse, Stop, quel que soit le compte.',
- vig:'<b>Dos :</b> le tronc reste immobile, seule la hanche bouge ; aucune flexion de colonne. Si le bassin part en arrière, baisse la jambe plutôt que de tourner. <b>Hanche :</b> lève à hauteur confortable, une jambe trop haute fait travailler le tenseur du fascia lata et bascule le bassin. <b>Épaules :</b> même appui que la version au sol, pousse le sol avec l\'avant-bras et garde l\'épaule loin de l\'oreille, sans t\'affaisser dedans. <b>Respiration :</b> ne bloque jamais, souffle régulièrement pendant la série.',
+ vig:'<b>Dos :</b> le tronc reste immobile, seule la hanche bouge ; aucune flexion de colonne. Si le bassin part en arrière, baisse la jambe plutôt que de tourner. <b>Hanche :</b> lève à hauteur confortable, une jambe trop haute fait travailler le tenseur du fascia lata et bascule le bassin. <b>Épaules :</b> même appui que la version au sol, pousse le sol avec l\'avant-bras et garde l\'épaule loin de l\'oreille, sans t\'affaisser dedans. <b>Respiration :</b> ne bloque jamais, souffle régulièrement pendant la série. <b>Cou :</b> tête dans le prolongement du tronc, elle ne tombe pas vers l\'épaule d\'appui.',
  fb:'gainage-lateral'};
 
 /* --- quatre variantes de tractions a partir des deux entrees d origine --- */
@@ -309,7 +309,7 @@ DB['gainage-lateral-jambe-levee']={
   DB['tractions-assistees-supination']=Object.assign({},A,{
     nom:'Tractions assistées, supination',en:'Band-assisted chin-ups',
     desc:['Élastique passé sur la barre, pied ou genou dedans. Prise en supination, paumes vers toi, largeur épaules.',
-          'Tire jusqu\'à amener le menton au niveau de la barre, coudes vers le bas, souffle en tirant.',
+          'Tire jusqu\'à ce que le menton arrive au niveau de la barre, porté par la montée du corps et non tendu vers elle, coudes vers le bas, souffle en tirant.',
           'Descends lentement en 2-3 s, bras presque tendus en bas.']});
   DB['tractions-assistees-pronation']=Object.assign({},A,{
     nom:'Tractions assistées, pronation',en:'Band-assisted pull-ups',
@@ -317,14 +317,14 @@ DB['gainage-lateral-jambe-levee']={
     desc:['Même montage élastique, mais prise en pronation, paumes vers l\'avant, un peu plus large que les épaules.',
           'Tire en amenant la poitrine vers la barre, coudes vers le bas et légèrement écartés, souffle en tirant.',
           'Descends lentement, bras presque tendus en bas.'],
-    vig:'<b>Épaules :</b> la pronation sollicite davantage le dos mais tire plus sur les épaules. Amplitude confortable uniquement, et arrête au moindre pincement.'});
+    vig:'<b>Épaules :</b> la pronation sollicite davantage le dos mais tire plus sur les épaules. Amplitude confortable uniquement, et arrête au moindre pincement. <b>Cou :</b> c\'est la poitrine qui monte vers la barre, jamais le menton tendu vers elle ; nuque longue.'});
   DB['tractions-strictes-supination']=Object.assign({},S,{
     nom:'Tractions strictes, supination',en:'Chin-ups',
     lock:{after:'tractions-assistees-supination',cond:'Atteins 10 tractions assistées supination sur une série avec ton élastique le plus fin',need:10,bandGate:true}});
   DB['tractions-strictes-pronation']=Object.assign({},S,{
     nom:'Tractions strictes, pronation',en:'Pull-ups',mus:'Grand dorsal, haut du dos',
     lock:{after:'tractions-assistees-pronation',cond:'Atteins 10 tractions assistées pronation sur une série avec ton élastique le plus fin',need:10,bandGate:true},
-    vig:'<b>Épaules :</b> l\'exercice le plus exigeant du programme. Reste strict, pas de balancier, et descends contrôlé.'});
+    vig:'<b>Épaules :</b> l\'exercice le plus exigeant du programme. Reste strict, pas de balancier, et descends contrôlé. <b>Cou :</b> c\'est la poitrine qui monte vers la barre, jamais le menton tendu vers elle ; nuque longue.'});
   delete DB['tractions-assistees']; delete DB['tractions-strictes'];
   Object.assign(CFG,{
     'tractions-assistees-supination':{cat:'pull',mode:'bw',reps:[4,10],sets:3,bnd:'ass',band0:'noir'},
