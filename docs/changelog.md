@@ -17,7 +17,7 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 
 **Les 58 illustrations vivent en fichiers, `imgdata.js` est fabriqué au build.** `dist/index.html`
 identique octet pour octet, aucun effet sur l'app. Décision, preuves et écartés dans
-`docs/adr/0003-banque-jpeg-separes.md`.
+`docs/adr/0003-banque-jpeg-separes.md`. Vérifié sur runner par le job `bancs`, vert en 4 min 3 s.
 
 ### Retiré
 

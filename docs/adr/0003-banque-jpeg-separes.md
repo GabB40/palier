@@ -78,6 +78,10 @@ Tranchée par Claude, Gabriel lui ayant laissé les sept points de conception le
 - **Un `src/imgdata.js` qui survit à l'extraction**, parce qu'une extraction ne supprime rien et
   que le `git rm` a été oublié, serait recopié dans `build/` : le générateur refuse alors d'écrire
   et le build s'arrête. Éprouvé : sortie 1, `dist/index.html` intouché.
+- **Vérifié sur runner le 27 septembre 2026** : push du lot sur `main`, job `bancs` vert en
+  4 min 3 s, build, garde d'identité et seize bancs compris. Le `dist/index.html` commité est
+  reproduit depuis `src/img/` sur une machine neutre : JPEG intacts et manifeste en LF après
+  checkout, sans quoi le générateur ou la garde aurait échoué.
 - `test22` inchangée : elle lit `IMG` dans `check.js`, une clé orpheline y échoue comme avant.
 - Ajouter, remplacer ou retirer une illustration change `dist/index.html`, donc la version.
   Procédure dans `tools/README.md`.
