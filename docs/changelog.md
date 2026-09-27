@@ -13,6 +13,31 @@ Les dates antérieures au 8 août 2026 n'ont pas été consignées à l'époque 
 
 ---
 
+## Banque d'images en JPEG séparés, 27 septembre 2026, sans changement de version
+
+**Les 58 illustrations vivent en fichiers, `imgdata.js` est fabriqué au build.** `dist/index.html`
+identique octet pour octet, aucun effet sur l'app. Décision, preuves et écartés dans
+`docs/adr/0003-banque-jpeg-separes.md`.
+
+### Retiré
+
+- `src/imgdata.js`, désormais fabriqué dans `build/`.
+- Les deux scripts d'insertion et de régénération de `tools/README.md`, et le piège du saut de
+  ligne final qu'ils portaient.
+- Deux restes ouverts, par décision de Gabriel : la faille des douze tenues avec une pause au
+  milieu, ni traitée ni journalisée (ADR-0004), et l'écran qui s'éteint pendant une série longue,
+  sans objet sur PC (ADR-0005).
+
+### Ajouté
+
+- `src/img/`, 58 JPEG et le manifeste `ordre.txt`, qui porte l'ordre des clés.
+- `tools/imgdata.py`, lancé par `build.sh`, qui refuse toute incohérence entre manifeste et
+  fichiers, et tout `imgdata.js` déjà présent dans `build/`.
+- `tests/falsif/falsifimg.sh`, seizième banc, 16 mutations.
+- Garde d'identité dans `.github/workflows/bancs.yml`, après le build.
+
+---
+
 ## CI/CD, 27 septembre 2026, sans changement de version
 
 **Une version se déploie par un tag `v*`.** GitHub Actions construit, passe les cinquante suites,

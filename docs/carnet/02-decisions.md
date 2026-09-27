@@ -2572,8 +2572,8 @@ quatre retours de Gabriel, dans l'ordre où ils ont été faits, et ce qui en es
   strict que l'existant, sur du gainage au poids du corps. Et refaire une série entière de gainage
   après un coup de fil fausse la série suivante. Reprendre rejoue le décompte et repart sur le côté
   qui était en cours, l'écart entre côtés reste d'au plus un. La faille, douze tenues avec une pause
-  au milieu, existe un cran plus haut que celle de la v1.13 ; elle n'est pas journalisée, pas
-  d'emblée.
+  au milieu, existe un cran plus haut que celle de la v1.13 ; elle n'est ni traitée ni
+  journalisée (ADR-0004, texte d'origine conservé).
 - *L'écran ressemblera-t-il à la maquette ?* Non : la maquette isolait le bloc `entry` de la carte
   d'étape. Le reste de la carte est conservé, figure, fiche, vignette, « Tenir ce palier », séries,
   Passer, repli. Le bloc apporte l'en-tête « Tenue » à côté de la fourchette, le côté, le chrono de
@@ -2734,8 +2734,8 @@ survies de `falsif44`. Règle : quand une valeur vient du moteur de rendu et non
 ne prouve rien de ce qu'elle vaudra ; **ce qui se vérifie sans navigateur, c'est la propriété de
 feuille de style dont la mesure dépend**, et c'est elle qu'il faut asserter.
 
-**Suites.** L'écran s'éteint sur une série de deux minutes, le son porte le rythme mais le Stop se
-cherche à l'aveugle : `navigator.wakeLock`, à examiner dans un lot propre. Les marches du dernier
+**Suites.** L'écran qui s'éteint sur une série de deux minutes est sans objet : les séances se
+font sur PC (ADR-0005, texte d'origine conservé). Les marches du dernier
 barreau, carrés et résistance, restent écrites ; successeurs avec illustration le jour venu.
 
 ### Escalier du squat, et la porte qui lit le palier joué (v2.18)

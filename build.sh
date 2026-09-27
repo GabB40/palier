@@ -3,17 +3,22 @@
 # dist/index.html. Tout est recopie a plat dans build/ (ignore par git) : suites
 # et bancs lisent leurs fichiers dans le repertoire courant et restent donc
 # inchanges d un octet. dist/ n est ecrit que si toutes les suites passent.
+# imgdata.js n est pas une source : tools/imgdata.py le fabrique dans build/
+# depuis src/img/, JPEG et manifeste ordre.txt (ADR-0003).
 # Bancs de falsification, a la main apres un build : bash build/falsifNN.sh
 set -e
 cd "$(dirname "$0")"
 rm -rf build
 mkdir build
 # une collision de noms ecraserait un fichier sans bruit
-for f in src/* infra/* tests/*.js tests/falsif/*.sh tools/*.js tools/*.py; do
+for f in src/*.html src/*.js infra/* tests/*.js tests/falsif/*.sh tools/*.js tools/*.py; do
   n=${f##*/}
   if [ -e "build/$n" ]; then echo "collision de noms dans build/ : $n"; exit 1; fi
   cp -p "$f" "build/$n"
 done
+# refuse d ecrire sur un build/imgdata.js deja present : un src/imgdata.js
+# survivant a l extraction d une archive y aurait ete recopie
+python3 tools/imgdata.py src/img build/imgdata.js
 cd build
 cat head.html imgdata.js app1.js app2.js app3.js app4.js app5.js app6.js app7.js app9.js app10.js app8.js tail.html > index.html
 python3 - << 'EOF'

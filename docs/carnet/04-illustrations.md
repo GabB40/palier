@@ -104,3 +104,7 @@ La banque reste mixte sur le vêtement, et c'est assumé : les deux fiches au so
 comme `pont-fessier`, `dead-bug` et `planche`, les deux fiches sur banc portent le débardeur comme
 `gainage-lateral`. La cohérence avec la fiche voisine vaut mieux que l'uniformité de la banque.
 
+**Stockage, depuis le 27 septembre 2026 (ADR-0003).** Chaque illustration traitée vit dans
+`src/img/<id>.jpg`, sortie de `prep_illus.py` telle quelle ; `imgdata.js` n'est plus une source,
+`build.sh` le fabrique depuis ces fichiers et le manifeste `src/img/ordre.txt`. Ajout,
+remplacement et retrait : `tools/README.md`. Les PNG sources ne sont pas versionnés.

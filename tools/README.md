@@ -1,7 +1,7 @@
 # Outils
 
-Hors `build.sh`, lancés à la main. `build.sh` les recopie dans `build/`, où ils trouvent
-`check.js`. Un outil nouveau ou modifié met sa ligne à jour ici, dans le même lot.
+Hors `build.sh`, lancés à la main, sauf `imgdata.py`, que `build.sh` lance à chaque build.
+`build.sh` les recopie dans `build/`, où ils trouvent `check.js`. Un outil nouveau ou modifié met sa ligne à jour ici, dans le même lot.
 
 ## `neutre.js`, empreinte de neutralité
 
@@ -45,38 +45,33 @@ un trait de mur intérieur tombe dans la bande de recherche de `find_separator` 
 `04-illustrations.md`) ; sans lui, le comportement est celui de toujours. Toute illustration passe
 par ce script, sans exception.
 
-## Banque d'images, `src/imgdata.js`
+## `imgdata.py`, banque d'images
 
-Forme canonique : une ligne `const IMG={...};` en JSON, clés égales aux identifiants d'exercice,
-puis deux sauts de ligne. `VERSION` vit dans `app1.js` et non ici, parce que la régénération
-réécrit ce fichier en entier. Une clé qui ne sert ni une fiche ni une étape d'échauffement fait
-échouer `test22`.
-
-Insertion ou remplacement de quelques images, sans toucher au reste :
-
-```python
-import json, base64
-s = open('imgdata.js', encoding='utf-8').read()
-i = s.index('const IMG='); j = s.index(';\n', i)
-img = json.loads(s[i + len('const IMG='):j])
-for k in ['exercice-1', 'exercice-2']:
-    img[k] = 'data:image/jpeg;base64,' + base64.b64encode(open(k + '.jpg', 'rb').read()).decode()
-out = s[:i] + 'const IMG=' + json.dumps(img, separators=(',', ':'), ensure_ascii=False) + s[j:]
-open('imgdata.js', 'w', encoding='utf-8').write(out)
+```bash
+python3 tools/imgdata.py src/img build/imgdata.js
 ```
 
-Régénération complète depuis un dossier de JPEG traités ; ce script réécrit `imgdata.js` et
-deviendra un outil du lot JPEG séparés :
+Lancé par `build.sh`, jamais à la main hors banc (ADR-0003). `src/img/` porte une illustration par
+exercice ou étape d'échauffement, `<id>.jpg`, et `ordre.txt`, un identifiant par ligne, en LF,
+saut de ligne final compris. Le générateur écrit `const IMG=` suivi du JSON compact,
+`ensure_ascii=False`, puis deux sauts de ligne, clés dans l'ordre du manifeste : aucun tri ne
+reproduit l'ordre historique, et un tri changerait `dist/index.html`. `VERSION` vit dans
+`app1.js`.
 
-```python
-import os, base64, json
-PREP = 'prep'
-d = {}
-for f in sorted(os.listdir(PREP)):
-    d[f[:-4]] = 'data:image/jpeg;base64,' + base64.b64encode(open(os.path.join(PREP, f), 'rb').read()).decode()
-open('imgdata.js', 'w').write('const IMG=' + json.dumps(d, separators=(',', ':')) + ';\n')
-print('images', len(d))
-```
+Il refuse, sortie 1, sans rien écrire : manifeste absent, vide, sans saut de ligne final ou avec
+une ligne vide ; identifiant hors `[a-z0-9-]`, CR compris ; doublon ; ligne sans fichier ; fichier
+absent du manifeste ; toute autre entrée qu'un `.jpg` ou le manifeste ; JPEG sans `FFD8FF` en tête
+ou `FFD9` en fin ; cible déjà présente. Ce dernier refus attrape un `src/imgdata.js` survivant à
+l'extraction d'une archive, que `build.sh` recopierait dans `build/`. Sortie mesurée au lot :
+`imgdata.js : 58 images, 2771080 octets de JPEG`. Banc : `falsifimg`.
 
-Attention : la régénération écrit un seul saut de ligne final là où la forme canonique en porte
-deux ; elle se vérifie octet pour octet avant d'être adoptée.
+Une clé qui ne sert ni une fiche ni une étape d'échauffement fait échouer `test22`, qui compte
+aussi la banque, 58 images.
+
+- **Ajouter** : `python3 tools/prep_illus.py source.png src/img/<id>.jpg [separateur]`, ajouter
+  `<id>` en fin de `src/img/ordre.txt`, brancher la fiche ou l'étape, ajuster le compte de
+  `test22`, `./build.sh`.
+- **Remplacer** : repasser la source par `prep_illus.py` sur `src/img/<id>.jpg`, `./build.sh`.
+- **Retirer** : `git rm src/img/<id>.jpg`, retirer la ligne du manifeste, ajuster `test22`.
+
+Dans les trois cas `dist/index.html` change : la version change.

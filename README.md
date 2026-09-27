@@ -8,12 +8,13 @@ export réel, signalements de douleur compris.
 
 | Chemin | Contenu |
 |---|---|
-| `src/` | `head.html`, `imgdata.js` (banque d'images), `app1.js` à `app10.js`, `tail.html` |
+| `src/` | `head.html`, `app1.js` à `app10.js`, `tail.html` |
+| `src/img/` | banque d'images : `<id>.jpg` et `ordre.txt`, ordre des clés (ADR-0003) |
 | `build.sh` | assemblage, cinquante suites, écriture de `dist/index.html` |
 | `dist/index.html` | livrable déployé, commité, jamais édité à la main, reproduit par la CI avant tout dépôt |
 | `tests/` | `test.js` à `test49.js`, `testapi.js` ; `README.md` décrit chaque suite |
-| `tests/falsif/` | quinze bancs de falsification, lancés à la main, décrits dans `tests/README.md` |
-| `tools/` | `neutre.js`, `seuil-r.js`, `ordre-circuit.js`, `prep_illus.py` ; `README.md` pour l'usage |
+| `tests/falsif/` | seize bancs de falsification, lancés à la main, décrits dans `tests/README.md` |
+| `tools/` | `imgdata.py`, lancé par `build.sh`, `neutre.js`, `seuil-r.js`, `ordre-circuit.js`, `prep_illus.py` ; `README.md` pour l'usage |
 | `infra/` | `palier-edge.yaml`, `palier-backend.yaml`, `palier-ci.yaml`, `deploy.sh`, `cle.sh`, `testedge.sh` |
 | `.github/workflows/` | `deploiement.yml`, sur tag `v*` ; `bancs.yml`, sur push vers `main` et à la demande |
 | `docs/` | carnet, ADR, changelog, backend, how-to |
@@ -26,10 +27,11 @@ Prérequis : bash, Python 3, Node 22.
 ./build.sh
 ```
 
-Le script recopie `src/`, `infra/`, `tests/`, `tests/falsif/` et `tools/` à plat dans `build/`
-(ignoré par Git) : suites et bancs lisent leurs fichiers dans le répertoire courant. Il assemble
-dans l'ordre `head imgdata app1 app2 app3 app4 app5 app6 app7 app9 app10 app8 tail`, lance les
-cinquante suites une par une, et n'écrit `dist/index.html` que si toutes passent.
+Le script recopie `src/`, hors `src/img/`, `infra/`, `tests/`, `tests/falsif/` et `tools/` à plat
+dans `build/` (ignoré par Git) : suites et bancs lisent leurs fichiers dans le répertoire courant.
+Il y fabrique `imgdata.js` depuis `src/img/` par `tools/imgdata.py`, puis assemble dans l'ordre
+`head imgdata app1 app2 app3 app4 app5 app6 app7 app9 app10 app8 tail`, lance les cinquante
+suites une par une, et n'écrit `dist/index.html` que si toutes passent.
 
 Bancs de falsification : lancement et lecture des journaux dans `tests/README.md`. Tout banc dont
 le code visé a changé se relance dans le lot.
@@ -53,7 +55,3 @@ arrière : CloudShell `us-east-1`, `./infra/deploy.sh`. Détail dans `docs/howto
 - `docs/howto/` : `git.md`, `cloudshell.md`, `deploiement.md`, `cles.md`.
 - Avant la migration : les cinq .md du projet Claude et `index.html` v2.24, premier commit du
   dépôt (`docs/adr/0001-depot-git.md`).
-
-## Lots prévus
-
-- Banque d'images en JPEG séparés, `imgdata.js` généré au build, après preuve octet pour octet.

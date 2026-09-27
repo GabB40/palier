@@ -425,8 +425,8 @@ de cadence restent à éprouver à l'usage, Gabriel n'ayant pu tester la maquett
 
 **Reste ouvert après la v2.22.** Les valeurs de cadence du pont, 1,5 / 1 / 2 s, n'ont pas eu de
 maquette : premier retour à l'usage attendu sur le pont lesté. La faille des douze tenues avec une
-pause au milieu, nommée en v2.17 pour le bird-dog, vaut désormais aussi pour le pont, non
-journalisée de la même façon.
+pause au milieu, nommée en v2.17 pour le bird-dog et valable aussi pour le pont, est close sans
+traitement ni journal (ADR-0004).
 
 **Synchronisation entre appareils, conception validée le 25 septembre 2026, lot B livré.**
 Étape 1, stack `palier-backend` et `cle.sh`, déployée et vérifiée le 26 septembre, clé `gabriel`
@@ -570,8 +570,8 @@ les formes retenues.
 *Tenues rythmées, livrées en v2.17.* La conception de septembre a été livrée avec quatre écarts
 tranchés en séance, plus deux corrections d'audit avant déploiement ; le détail, les motifs
 d'écartement et ce que la conception avait de faux vivent à la section « Tenues rythmées » en 2.
-Restent ouverts : les successeurs de plafond, carrés et résistance, encore des marches écrites, et
-la faille des douze tenues avec une pause au milieu, non journalisée.
+Reste ouvert : les successeurs de plafond, carrés et résistance, encore des marches écrites. La
+faille des douze tenues avec une pause au milieu est close sans traitement ni journal (ADR-0004).
 
 *Critère de fin de série, livré en v2.12.* Le champ `fin` porte le critère propre sur sept fiches,
 et toutes portent la règle générale. Formulation retenue, issue de Gabriel et affinée : **une série se termine quand la répétition suivante ne serait plus le même

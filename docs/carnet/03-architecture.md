@@ -9,7 +9,7 @@ Structure interne, dans l'ordre d'assemblage :
 | Bloc | Contenu |
 |---|---|
 | `head.html` | shell HTML, CSS complet, favicon SVG inline, ouverture du `<script>` |
-| `imgdata.js` | `const IMG={...}` : toutes les illustrations en base64 JPEG |
+| `imgdata.js` | `const IMG={...}` : toutes les illustrations en base64 JPEG, fabriqué dans `build/` depuis `src/img/` (ADR-0003) |
 | `app1.js` | pictogrammes SVG de repli, `figFor`, échelle de charge (`loadLadder`, `nextLoad`) |
 | `app2.js` | `const DB={...}` : base d'exercices (nom, muscles, description, vigilance, figure SVG) |
 | `app3.js` | `CFG` surcouche de progression, variantes de tractions, `SLOTS`, `STRETCH_POOL`, `WARMUP`, XP, rangs, badges |
@@ -74,7 +74,7 @@ joué sous un autre régime.
 `bandGate`, `loadTop`, `kbTop` et `rungTop` ne lisent qu'eux ; les écrans lisent l'historique.
 
 **Conventions** :
-- L'identifiant d'un exercice est la clé dans `DB`, le nom du fichier image (`<id>.png`) et la clé dans `IMG`
+- L'identifiant d'un exercice est la clé dans `DB`, le nom du fichier image (`src/img/<id>.jpg`, source `<id>.png`) et la clé dans `IMG` ; l'ordre des clés de `IMG` est celui de `src/img/ordre.txt` (ADR-0003)
 - Toute modification passe par les fichiers sources puis réassemblage, jamais par édition du HTML final
 - Un script Python `prep_illus.py` recadre, aligne, nettoie et compresse les images générées
 

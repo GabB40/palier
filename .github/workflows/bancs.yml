@@ -1,7 +1,9 @@
-# Quinze bancs de falsification a chaque push sur main, et a la demande.
+# Seize bancs de falsification a chaque push sur main, et a la demande.
 # Ne conditionne pas le deploiement ; sort en echec si un banc sort non nul ou
 # si un journal porte un motif de survie : falsif36 sort a 0 meme sur une
 # mutation non detectee, les journaux se lisent (tests/README.md, ADR-0002).
+# Garde d identite apres le build, comme au deploiement : un push sans tag
+# eprouve lui aussi la reproduction sur machine neutre (ADR-0003).
 name: bancs
 
 on:
@@ -31,6 +33,15 @@ jobs:
 
       - name: Build et cinquante suites
         run: ./build.sh
+
+      - name: Garde d identite
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            echo "ECHEC : le build ne reproduit pas l arbre commite"
+            exit 1
+          fi
+          echo "OK : dist/index.html reproduit octet pour octet"
 
       - name: Bancs et lecture des journaux
         run: |

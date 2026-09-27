@@ -1,7 +1,7 @@
 # ADR-0002 : une version se déploie par un tag `v*`, GitHub Actions et un rôle OIDC
 
 - **Date** : 2026-09-27
-- **Statut** : accepté
+- **Statut** : accepté ; conséquence multipart relue par ADR-0003, sans objet
 - **Remplace** : carnet, section 6, règle « Après livraison » (texte d'origine en fin de document) ;
   ADR-0001, point 4 pour le chemin de déploiement, et « Suite prévue »
 

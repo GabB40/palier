@@ -82,12 +82,17 @@ grep -l 'NON DETECTE\|SURVIT \|SANS EFFET\|NE MORD PAS\|SYNTAXE CASSEE' build/fa
 
 Le second `grep` doit rester muet : `falsif36` sort à 0 même sur une mutation non détectée.
 
+`falsifimg` ne vise pas une suite mais le générateur de la banque : il copie `src/img/` dans un
+dossier jetable, vérifie que l'arbre intact redonne le `build/imgdata.js` du build, puis défait
+chaque refus du générateur, qui doit sortir à 1 sans rien écrire ; une permutation du manifeste,
+acceptée, doit changer la sortie (ADR-0003). Il se lance depuis `build/` et lit `../src/img`.
+
 Le workflow `.github/workflows/bancs.yml` joue ces mêmes commandes à chaque push sur `main` et à la
 demande. Il sort en échec si un banc sort non nul ou si le `grep` trouve un motif, sans
 conditionner le déploiement (ADR-0002). Il ne dispense pas de relancer les bancs dans le lot qui
 change le code visé.
 
-Mutations comptées sur les journaux du 26 septembre 2026, toutes tombées :
+Mutations comptées sur les journaux du 27 septembre 2026, toutes tombées :
 
 | Banc | Suite | Mutations |
 |---|---|---|
@@ -106,6 +111,7 @@ Mutations comptées sur les journaux du 26 septembre 2026, toutes tombées :
 | `falsif48` | `test48` | 25 |
 | `falsif49` | `test49` | 33 |
 | `falsifapi` | `testapi` | 39 |
+| `falsifimg` | `tools/imgdata.py` | 16, cible présente et permutation du manifeste comprises |
 
 Historique des suites et des bancs jusqu'à la v2.24 : `PALIER-outillage.md`, premier commit du
 dépôt.
